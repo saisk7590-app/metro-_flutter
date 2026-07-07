@@ -39,6 +39,15 @@ class _CustomDropdownState extends State<CustomDropdown> {
     // Update selected value
     if (widget.selectedValue != oldWidget.selectedValue) {
       _controller.text = widget.selectedValue;
+
+      if (widget.selectedValue.isEmpty) {
+        _controller.clear();
+
+        setState(() {
+          search = '';
+          isOpen = false;
+        });
+      }
     }
 
     // Reset search when options change
@@ -106,10 +115,14 @@ class _CustomDropdownState extends State<CustomDropdown> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      enabled: widget.keyboardEnabled,
+                      //enabled: widget.keyboardEnabled,
                       readOnly: !widget.keyboardEnabled,
-                      decoration: const InputDecoration(
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
                         hintText: 'Select option',
+                        hintStyle: const TextStyle(color: Colors.grey),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,

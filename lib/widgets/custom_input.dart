@@ -5,6 +5,8 @@ class CustomInput extends StatelessWidget {
   final TextEditingController controller;
   final String placeholder;
   final bool multiline;
+  final bool enabled;
+  final TextInputType keyboardType;
 
   const CustomInput({
     super.key,
@@ -12,6 +14,8 @@ class CustomInput extends StatelessWidget {
     required this.controller,
     required this.placeholder,
     this.multiline = false,
+    this.enabled = true,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -41,6 +45,8 @@ class CustomInput extends StatelessWidget {
           /// Input Field
           TextField(
             controller: controller,
+            enabled: enabled,
+            keyboardType: keyboardType,
             maxLines: multiline ? 4 : 1,
             style: TextStyle(
               fontSize: 16,
@@ -48,7 +54,7 @@ class CustomInput extends StatelessWidget {
             ),
             decoration: InputDecoration(
               hintText: placeholder,
-
+              hintStyle: TextStyle(color: colors.secondary),
               filled: true,
 
               fillColor: colors.surface,
