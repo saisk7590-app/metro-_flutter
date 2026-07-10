@@ -37,7 +37,7 @@ class DrawerMenuButton extends StatelessWidget {
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(.4),
+              color: theme.colorScheme.outline.withValues(alpha: 0.4),
             ),
           ),
           child: const Icon(Icons.menu),

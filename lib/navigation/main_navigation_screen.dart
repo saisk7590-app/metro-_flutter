@@ -14,7 +14,7 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int currentIndex = 1;
+  int currentIndex = 0;
 
   final List<Widget> screens = const [
     DashboardScreen(),

@@ -8,6 +8,7 @@ class LightColors {
   static const textSecondary = 0xFF6B7280;
 
   static const border = 0xFFD1D5DB;
+  static const headerBackground = 0xFFEAF4FF; // light blue/grey
 
   static const inputBg = 0xFFFFFFFF;
   static const dropdownBg = 0xFFF3F4F6;

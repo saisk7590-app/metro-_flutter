@@ -129,6 +129,9 @@ class _DepotMapState extends State<DepotMap> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     if (widget.depot.isEmpty) {
       return Container(
         height: 450,
@@ -160,27 +163,33 @@ class _DepotMapState extends State<DepotMap> {
             height: 50,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEAF4FF),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
-              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+              border: Border(bottom: BorderSide(color: colors.outline)),
             ),
             child: Row(
               children: [
                 Text(
                   "${widget.depot} Layout",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: isDark ? Colors.white : const Color(0xFF1E3A8A),
                   ),
                 ),
+
                 const Spacer(),
+
                 TextButton.icon(
                   onPressed: _resetZoom,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text("Reset"),
+                  icon: Icon(Icons.refresh, color: theme.primaryColor),
+                  label: Text(
+                    "Reset",
+                    style: TextStyle(color: theme.primaryColor),
+                  ),
                 ),
               ],
             ),
@@ -337,9 +346,8 @@ class _DepotMapState extends State<DepotMap> {
               } else {
                 showDialog(
                   context: context,
-                  builder: (context) => TrainDetailsPopup(
-                    assignment: assignment,
-                  ),
+                  builder: (context) =>
+                      TrainDetailsPopup(assignment: assignment),
                 );
               }
             },
@@ -347,12 +355,14 @@ class _DepotMapState extends State<DepotMap> {
               message: trackId,
               child: Container(
                 decoration: BoxDecoration(
-                  color: assignment != null 
-                      ? assignment.statusColor.withValues(alpha: 0.6) 
+                  color: assignment != null
+                      ? assignment.statusColor.withValues(alpha: 0.6)
                       : Colors.transparent,
                   border: Border.all(
-                    color: assignment != null ? assignment.statusColor : Colors.transparent, 
-                    width: 1
+                    color: assignment != null
+                        ? assignment.statusColor
+                        : Colors.transparent,
+                    width: 1,
                   ),
                 ),
                 child: assignment != null

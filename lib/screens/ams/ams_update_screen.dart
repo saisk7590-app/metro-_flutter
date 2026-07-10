@@ -36,10 +36,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
 
   final remarksController = TextEditingController();
 
-  final Map<String, int> depotIds = {
-    'Uppal': 633,
-    'Miyapur': 9373,
-  };
+  final Map<String, int> depotIds = {'Uppal': 633, 'Miyapur': 9373};
 
   @override
   void initState() {
@@ -127,9 +124,8 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           const CustomHeader(
-            title: "AMS UPDATE",
+            title: "Bay Layout Upadate",
             subtitle: "Update Train Status",
           ),
 
@@ -156,7 +152,6 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-
                     //----------------------------------
                     // Depot
                     //----------------------------------
@@ -191,7 +186,6 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                           .map((e) => e.slotName)
                           .toList(),
                       onChanged: (value) {
-
                         final selectedBay = bayProvider.maintenanceBays
                             .firstWhere((e) => e.slotName == value);
 
@@ -214,9 +208,9 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                           .map((e) => e.no)
                           .toList(),
                       onChanged: (value) {
-
-                        final train = trainProvider.trainSets
-                            .firstWhere((e) => e.no == value);
+                        final train = trainProvider.trainSets.firstWhere(
+                          (e) => e.no == value,
+                        );
 
                         setState(() {
                           trainNo = value;
@@ -225,8 +219,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                       },
                     ),
 
-                    if (statusProvider.isLoading ||
-                        purposeProvider.isLoading)
+                    if (statusProvider.isLoading || purposeProvider.isLoading)
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(12),
@@ -239,7 +232,6 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                     //----------------------------------
                     Row(
                       children: [
-
                         Expanded(
                           child: CustomDropdown(
                             label: 'Status',
@@ -248,9 +240,9 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                 .map((e) => e.name)
                                 .toList(),
                             onChanged: (value) {
-
-                              final item = statusProvider.statuses
-                                  .firstWhere((e) => e.name == value);
+                              final item = statusProvider.statuses.firstWhere(
+                                (e) => e.name == value,
+                              );
 
                               setState(() {
                                 status = value;
@@ -270,9 +262,9 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                 .map((e) => e.name)
                                 .toList(),
                             onChanged: (value) {
-
-                              final item = purposeProvider.purposes
-                                  .firstWhere((e) => e.name == value);
+                              final item = purposeProvider.purposes.firstWhere(
+                                (e) => e.name == value,
+                              );
 
                               setState(() {
                                 purpose = value;
@@ -281,10 +273,9 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                             },
                           ),
                         ),
-
                       ],
                     ),
-                                        const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     //----------------------------------
                     // Inward Time + Outward Time
@@ -294,8 +285,13 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              inwardTime = await pickDateTime();
-                              setState(() {});
+                              final value = await pickDateTime();
+
+                              if (!mounted) return;
+
+                              setState(() {
+                                inwardTime = value;
+                              });
                             },
                             child: AbsorbPointer(
                               child: CustomInput(
@@ -314,8 +310,13 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              outwardTime = await pickDateTime();
-                              setState(() {});
+                              final value = await pickDateTime();
+
+                              if (!mounted) return;
+
+                              setState(() {
+                                outwardTime = value;
+                              });
                             },
                             child: AbsorbPointer(
                               child: CustomInput(
@@ -366,19 +367,20 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                           return;
                         }
 
-                        final success = await context
-                            .read<MaintenanceBayProvider>()
-                            .saveMaintenanceBay(
-                              mbId: selectedMbId,
-                              mbDepot: depotId,
-                              mbSlot: selectedSlotId,
-                              mbTrainSet: selectedTrainId!,
-                              mbStatus: selectedStatusId!,
-                              mbPurpose: selectedPurposeId!,
-                              mbInward: formatApiDate(inwardTime),
-                              mbOutward: formatApiDate(outwardTime),
-                              mbRemark: remarksController.text,
-                            );
+                        final bayProvider = context
+                            .read<MaintenanceBayProvider>();
+
+                        final success = await bayProvider.saveMaintenanceBay(
+                          mbId: selectedMbId,
+                          mbDepot: depotId,
+                          mbSlot: selectedSlotId,
+                          mbTrainSet: selectedTrainId!,
+                          mbStatus: selectedStatusId!,
+                          mbPurpose: selectedPurposeId!,
+                          mbInward: formatApiDate(inwardTime),
+                          mbOutward: formatApiDate(outwardTime),
+                          mbRemark: remarksController.text,
+                        );
 
                         if (!mounted) return;
 
@@ -409,17 +411,14 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
 
                             remarksController.clear();
                           });
+                          if (!mounted) return;
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Saved Successfully"),
-                            ),
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(content: Text("Saved Successfully")),
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Save Failed"),
-                            ),
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(content: Text("Save Failed")),
                           );
                         }
                       },

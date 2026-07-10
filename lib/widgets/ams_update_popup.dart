@@ -61,6 +61,7 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
             .read<MaintenanceBayProvider>()
             .fetchMaintenanceBay(depotId)
             .then((_) {
+              if (!mounted) return;
               // Find mbId and slotId for initialTrack
               final bayProvider = context.read<MaintenanceBayProvider>();
               try {
@@ -283,8 +284,13 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () async {
-                                inwardTime = await pickDateTime();
-                                setState(() {});
+                                final value = await pickDateTime();
+
+                                if (!mounted) return;
+
+                                setState(() {
+                                  inwardTime = value;
+                                });
                               },
                               child: AbsorbPointer(
                                 child: CustomInput(
@@ -301,8 +307,13 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () async {
-                                outwardTime = await pickDateTime();
-                                setState(() {});
+                                final value = await pickDateTime();
+
+                                if (!mounted) return;
+
+                                setState(() {
+                                  outwardTime = value;
+                                });
                               },
                               child: AbsorbPointer(
                                 child: CustomInput(
@@ -354,45 +365,47 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
                     return;
                   }
 
-                  final success = await context
-                      .read<MaintenanceBayProvider>()
-                      .saveMaintenanceBay(
-                        mbId: selectedMbId,
-                        mbDepot: depotId,
-                        mbSlot: selectedSlotId,
-                        mbTrainSet: selectedTrainId!,
-                        mbStatus: selectedStatusId!,
-                        mbPurpose: selectedPurposeId!,
-                        mbInward: formatApiDate(inwardTime),
-                        mbOutward: formatApiDate(outwardTime),
-                        mbRemark: remarksController.text,
-                      );
+                  // Capture everything BEFORE await
+                  final bayProvider = context.read<MaintenanceBayProvider>();
+                  final activeProvider = context.read<ActiveTrainsProvider>();
+                  final messenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
+
+                  final success = await bayProvider.saveMaintenanceBay(
+                    mbId: selectedMbId,
+                    mbDepot: depotId,
+                    mbSlot: selectedSlotId,
+                    mbTrainSet: selectedTrainId!,
+                    mbStatus: selectedStatusId!,
+                    mbPurpose: selectedPurposeId!,
+                    mbInward: formatApiDate(inwardTime),
+                    mbOutward: formatApiDate(outwardTime),
+                    mbRemark: remarksController.text,
+                  );
 
                   if (!mounted) return;
 
                   if (success) {
-                    // Update the active trains provider
-                    context.read<ActiveTrainsProvider>().assignTrain(
+                    activeProvider.assignTrain(
                       TrainAssignment(
                         depotName: depot,
-                        sectionName: track, // Using track as fallback
+                        sectionName: track,
                         trackNumber: track,
                         trackId: track,
                         trainNo: trainNo,
                         maintenancePurpose: purpose,
-                        //trainType: '3 Car', // dummy
                         status: status,
                         remarks: remarksController.text.trim(),
                       ),
                     );
 
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       const SnackBar(content: Text('Saved Successfully')),
                     );
 
-                    Navigator.of(context).pop();
+                    navigator.pop();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       const SnackBar(content: Text('Save Failed')),
                     );
                   }

@@ -31,9 +31,9 @@ class ComingSoonScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: primary.withOpacity(0.1),
+                color: primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: primary.withOpacity(0.3)),
+                border: Border.all(color: primary.withValues(alpha: 0.3)),
               ),
               child: Text(
                 moduleName,
@@ -46,7 +46,7 @@ class ComingSoonScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Icon with glowing effect
             Stack(
               alignment: Alignment.center,
@@ -55,7 +55,7 @@ class ComingSoonScreen extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: primary.withOpacity(0.08),
+                    color: primary.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -63,7 +63,7 @@ class ComingSoonScreen extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: primary.withOpacity(0.12),
+                    color: primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -75,17 +75,13 @@ class ComingSoonScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: primary.withOpacity(0.4),
+                        color: primary.withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                  child: Icon(
-                    icon,
-                    size: 30,
-                    color: Colors.white,
-                  ),
+                  child: Icon(icon, size: 30, color: Colors.white),
                 ),
               ],
             ),
@@ -102,14 +98,14 @@ class ComingSoonScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             // "Coming Soon" Badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.15),
+                color: Colors.amber.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Colors.amber.withOpacity(0.4)),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
               ),
               child: const Text(
                 "UNDER DEVELOPMENT",

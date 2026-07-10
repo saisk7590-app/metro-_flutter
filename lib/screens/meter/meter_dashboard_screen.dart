@@ -26,8 +26,7 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
 
       appBar: AppBar(
         elevation: 0,
-        backgroundColor:
-            isDark ? const Color(0xFF1E293B) : Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         centerTitle: false,
 
         leading: DrawerMenuButton(),
@@ -46,10 +45,7 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
             ),
             Text(
               "Energy Meter Monitoring",
-              style: TextStyle(
-                fontSize: 12,
-                color: colors.secondary,
-              ),
+              style: TextStyle(fontSize: 12, color: colors.secondary),
             ),
           ],
         ),
@@ -63,10 +59,7 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
           "New Reading",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
 
@@ -74,43 +67,20 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-
             //-----------------------------
             // Summary Cards
             //-----------------------------
-
             Wrap(
               spacing: 12,
               runSpacing: 12,
               children: [
+                _buildStatCard(context, "Total", "0", Colors.blue),
 
-                _buildStatCard(
-                  context,
-                  "Total",
-                  "0",
-                  Colors.blue,
-                ),
+                _buildStatCard(context, "Healthy", "0", Colors.green),
 
-                _buildStatCard(
-                  context,
-                  "Healthy",
-                  "0",
-                  Colors.green,
-                ),
+                _buildStatCard(context, "Pending", "0", Colors.orange),
 
-                _buildStatCard(
-                  context,
-                  "Pending",
-                  "0",
-                  Colors.orange,
-                ),
-
-                _buildStatCard(
-                  context,
-                  "Faulty",
-                  "0",
-                  Colors.red,
-                ),
+                _buildStatCard(context, "Faulty", "0", Colors.red),
               ],
             ),
 
@@ -119,29 +89,23 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
             //-----------------------------
             // Search + Filter Card
             //-----------------------------
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color:
-                    isDark ? const Color(0xFF1E293B) : Colors.white,
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colors.outline.withAlpha(100),
-                ),
+                border: Border.all(color: colors.outline.withAlpha(100)),
               ),
 
               child: Column(
                 children: [
-
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: "Search Meter...",
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
@@ -150,18 +114,12 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
 
                   Row(
                     children: [
-
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: selectedDepot,
-                          decoration: const InputDecoration(
-                            labelText: "Depot",
-                          ),
+                          initialValue: selectedDepot,
+                          decoration: const InputDecoration(labelText: "Depot"),
                           items: const [
-                            DropdownMenuItem(
-                              value: "All",
-                              child: Text("All"),
-                            ),
+                            DropdownMenuItem(value: "All", child: Text("All")),
                             DropdownMenuItem(
                               value: "Miyapur",
                               child: Text("Miyapur"),
@@ -183,15 +141,12 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
 
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: selectedStatus,
+                          initialValue: selectedStatus,
                           decoration: const InputDecoration(
                             labelText: "Status",
                           ),
                           items: const [
-                            DropdownMenuItem(
-                              value: "All",
-                              child: Text("All"),
-                            ),
+                            DropdownMenuItem(value: "All", child: Text("All")),
                             DropdownMenuItem(
                               value: "Healthy",
                               child: Text("Healthy"),
@@ -223,20 +178,13 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
             //-----------------------------
             // Meter List Title
             //-----------------------------
-
             Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-
                 Text(
                   "Meters (0)",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-
               ],
             ),
 
@@ -245,46 +193,30 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
             //-----------------------------
             // Empty State
             //-----------------------------
-
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                vertical: 60,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 60),
               decoration: BoxDecoration(
-                color:
-                    isDark ? const Color(0xFF1E293B) : Colors.white,
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colors.outline,
-                ),
+                border: Border.all(color: colors.outline),
               ),
               child: Column(
                 children: [
-
-                  Icon(
-                    Icons.electric_meter,
-                    size: 70,
-                    color: colors.secondary,
-                  ),
+                  Icon(Icons.electric_meter, size: 70, color: colors.secondary),
 
                   const SizedBox(height: 15),
 
                   const Text(
                     "No Meter Readings",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 8),
 
                   Text(
                     "Meter readings will appear here once available.",
-                    style: TextStyle(
-                      color: colors.secondary,
-                    ),
+                    style: TextStyle(color: colors.secondary),
                   ),
                 ],
               ),
@@ -302,27 +234,19 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
     Color color,
   ) {
     final colors = Theme.of(context).colorScheme;
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final width =
-        (MediaQuery.of(context).size.width - 64) / 4 < 140
-            ? (MediaQuery.of(context).size.width - 50) / 2
-            : (MediaQuery.of(context).size.width - 68) / 4;
+    final width = (MediaQuery.of(context).size.width - 64) / 4 < 140
+        ? (MediaQuery.of(context).size.width - 50) / 2
+        : (MediaQuery.of(context).size.width - 68) / 4;
 
     return Container(
       width: width,
-      padding: const EdgeInsets.symmetric(
-        vertical: 14,
-        horizontal: 16,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
-        color:
-            isDark ? const Color(0xFF1E293B) : Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colors.outline.withAlpha(100),
-        ),
+        border: Border.all(color: colors.outline.withAlpha(100)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(10),
@@ -332,10 +256,8 @@ class _MeterDashboardScreenState extends State<MeterDashboardScreen> {
         ],
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Text(
             title,
             style: TextStyle(

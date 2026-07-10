@@ -15,6 +15,7 @@ class AppTheme {
       secondary: Color(0xFF6B7280),
 
       surface: Colors.white,
+      surfaceContainerHighest: Color(0xFFF4F7FC), // Header Background
 
       outline: Color(0xFFD1D5DB),
     ),
@@ -44,6 +45,7 @@ class AppTheme {
       secondary: Color(0xFF9CA3AF),
 
       surface: Color(0xFF121826),
+      surfaceContainerHighest: Color(0xFF1E293B), // Header Background
 
       outline: Color(0xFF1F2937),
     ),

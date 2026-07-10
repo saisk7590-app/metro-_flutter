@@ -8,6 +8,7 @@ class DarkColors {
   static const textSecondary = 0xFF9CA3AF;
 
   static const border = 0xFF1F2937;
+  static const headerBackground = 0xFF1E293B;
 
   static const inputBg = 0xFF111827;
   static const dropdownBg = 0xFF1E293B;

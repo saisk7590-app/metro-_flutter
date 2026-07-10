@@ -19,7 +19,9 @@ class CustomHeader extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Material(
-      color: theme.scaffoldBackgroundColor,
+      color: theme.colorScheme.surfaceContainerHighest,
+      shadowColor: Colors.black12,
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
         child: Row(
@@ -42,7 +44,7 @@ class CustomHeader extends StatelessWidget {
                       color: theme.colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: theme.colorScheme.outline.withOpacity(.4),
+                        color: theme.colorScheme.outline.withValues(alpha: 0.4),
                       ),
                     ),
                     child: const Icon(Icons.menu),
