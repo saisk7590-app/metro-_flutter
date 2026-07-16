@@ -5,6 +5,7 @@ import '../../widgets/custom_dropdown.dart';
 import '../../widgets/section_buttons.dart';
 import '../../widgets/depot_map.dart';
 import '../../widgets/custom_header.dart';
+import '../../widgets/bay_allocation_table.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -91,6 +92,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             depot: selectedDepot == 'Select Depot' ? '' : selectedDepot,
             selectedSection: selectedSection,
           ),
+
+          const SizedBox(height: 20),
+
+          if (selectedDepot != 'Select Depot')
+            BayAllocationTable(
+              title: "$selectedSection Allocation",
+              depotName: selectedDepot,
+              sectionName: selectedSection,
+              tracks: MapData.getTracks(selectedDepot, selectedSection),
+            ),
         ],
       ),
     );

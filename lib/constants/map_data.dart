@@ -163,6 +163,26 @@ class MapData {
     'UPMAIN-3': TrackBounds(x: 293.00, y: 153.00, w: 81.00, h: 11.25),
     'UPMAIN-4': TrackBounds(x: 293.00, y: 166.00, w: 81.00, h: 11.25),
   };
+
+  /// ADD THIS METHOD HERE
+  static List<String> getTracks(String depot, String section) {
+    if (depot.isEmpty || section.isEmpty) return [];
+
+    final depotPrefix = depot == 'Miyapur' ? 'MP' : 'UP';
+    final prefix = '$depotPrefix$section-';
+
+    final tracks = trackBounds.keys
+        .where((track) => track.startsWith(prefix))
+        .toList();
+
+    tracks.sort((a, b) {
+      final aNo = int.parse(a.split('-').last);
+      final bNo = int.parse(b.split('-').last);
+      return aNo.compareTo(bNo);
+    });
+
+    return tracks;
+  }
 }
 
 class TrackBounds {

@@ -207,8 +207,14 @@ class _DepotMapState extends State<DepotMap> {
               child: InteractiveViewer(
                 key: _viewerKey,
                 transformationController: _controller,
+
+                // allow your code (_zoomToSection) to control zoom
                 minScale: .2,
                 maxScale: 8,
+                // user cannot accidentally zoom with mouse wheel
+                scaleEnabled: false,
+                // user can still drag/pan the map
+                panEnabled: true,
                 constrained: false,
                 boundaryMargin: const EdgeInsets.all(1500),
                 clipBehavior: Clip.none,
