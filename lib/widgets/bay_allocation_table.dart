@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'allocation_popup.dart';
+import 'package:provider/provider.dart';
+import '../providers/allocation_provider.dart';
 
 class BayAllocationTable extends StatelessWidget {
   final String title;
@@ -23,6 +25,7 @@ class BayAllocationTable extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final allocationProvider = context.watch<AllocationProvider>();
     return Card(
       elevation: 2,
       clipBehavior: Clip.antiAlias,
@@ -83,7 +86,7 @@ class BayAllocationTable extends StatelessWidget {
               columns: const [
                 DataColumn(
                   label: Text(
-                    "Purpose",
+                    "Bay",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -108,16 +111,15 @@ class BayAllocationTable extends StatelessWidget {
               ],
 
               rows: tracks.map((track) {
+                final allocation = allocationProvider.getAllocation(track);
                 return DataRow(
                   cells: [
                     // Purpose (Track Name)
                     DataCell(Text(track)),
 
-                    // Inward Time
-                    const DataCell(Text("--")),
+                    DataCell(Text(allocation?.inwardTime ?? "--")),
 
-                    // Outward Time
-                    const DataCell(Text("--")),
+                    DataCell(Text(allocation?.outwardTime ?? "--")),
 
                     // Actions
                     DataCell(

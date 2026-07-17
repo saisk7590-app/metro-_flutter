@@ -6,6 +6,8 @@ import 'package:metro_flutter/providers/status_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:metro_flutter/providers/maintenance_purpose_provider.dart';
 import 'providers/train_provider.dart';
+
+import 'package:metro_flutter/providers/allocation_provider.dart';
 import 'navigation/main_navigation_screen.dart';
 //import 'screens/api_test_screen.dart';
 import 'theme/app_theme.dart';
@@ -23,6 +25,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => TrainProvider()),
         ChangeNotifierProvider(create: (_) => MaintenanceBayProvider()),
         ChangeNotifierProvider(create: (_) => ActiveTrainsProvider()),
+        ChangeNotifierProvider(create: (_) => AllocationProvider()),
       ],
       child: const MyApp(),
     ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+//import 'package:provider/provider.dart';
+
+// import '../providers/maintenance_purpose_provider.dart';
+// import '../providers/status_provider.dart';
+// import '../providers/train_provider.dart';
 import 'package:provider/provider.dart';
-
-import '../providers/maintenance_purpose_provider.dart';
-import '../providers/status_provider.dart';
-import '../providers/train_provider.dart';
-
+import '../providers/allocation_provider.dart';
+import '../models/allocation.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_input.dart';
 import '../widgets/custom_button.dart';
@@ -31,25 +33,10 @@ class _AllocationPopupState extends State<AllocationPopup> {
   String purpose = "";
   String inwardTime = "";
   String outwardTime = "";
-  int? selectedTrainId;
-  int? selectedStatusId;
-  int? selectedPurposeId;
 
   bool outwardScheduled = false;
 
   final remarksController = TextEditingController();
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-
-      context.read<StatusProvider>().fetchStatuses();
-      context.read<MaintenancePurposeProvider>().fetchMaintenancePurposes();
-      context.read<TrainProvider>().fetchTrainSets();
-    });
-  }
 
   @override
   void dispose() {
@@ -93,10 +80,25 @@ class _AllocationPopupState extends State<AllocationPopup> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final allocationProvider = context.watch<AllocationProvider>();
 
-    final statusProvider = context.watch<StatusProvider>();
-    final purposeProvider = context.watch<MaintenancePurposeProvider>();
-    final trainProvider = context.watch<TrainProvider>();
+    final history = allocationProvider.getHistory(widget.trackId);
+    final List<String> trainSets = [
+      "TS001",
+      "TS002",
+      "TS003",
+      "TS004",
+      "TS005",
+    ];
+
+    final List<String> statuses = ["Running", "Idle", "Maintenance", "Failure"];
+
+    final List<String> purposes = [
+      "Inspection",
+      "Preventive",
+      "Corrective",
+      "Cleaning",
+    ];
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -112,7 +114,7 @@ class _AllocationPopupState extends State<AllocationPopup> {
             border: Border.all(color: colors.outline),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -195,17 +197,10 @@ class _AllocationPopupState extends State<AllocationPopup> {
                         label: "Train Set",
                         selectedValue: trainNo,
                         keyboardEnabled: true,
-                        options: trainProvider.trainSets
-                            .map((e) => e.no)
-                            .toList(),
+                        options: trainSets,
                         onChanged: (value) {
-                          final train = trainProvider.trainSets.firstWhere(
-                            (e) => e.no == value,
-                          );
-
                           setState(() {
                             trainNo = value;
-                            selectedTrainId = train.id;
                           });
                         },
                       ),
@@ -221,38 +216,24 @@ class _AllocationPopupState extends State<AllocationPopup> {
                             child: CustomDropdown(
                               label: "Status",
                               selectedValue: status,
-                              options: statusProvider.statuses
-                                  .map((e) => e.name)
-                                  .toList(),
+                              options: statuses,
                               onChanged: (value) {
-                                final item = statusProvider.statuses.firstWhere(
-                                  (e) => e.name == value,
-                                );
-
                                 setState(() {
                                   status = value;
-                                  selectedStatusId = item.id;
                                 });
                               },
                             ),
                           ),
 
                           const SizedBox(width: 12),
-
                           Expanded(
                             child: CustomDropdown(
                               label: "Purpose",
                               selectedValue: purpose,
-                              options: purposeProvider.purposes
-                                  .map((e) => e.name)
-                                  .toList(),
+                              options: purposes,
                               onChanged: (value) {
-                                final item = purposeProvider.purposes
-                                    .firstWhere((e) => e.name == value);
-
                                 setState(() {
                                   purpose = value;
-                                  selectedPurposeId = item.id;
                                 });
                               },
                             ),
@@ -353,7 +334,57 @@ class _AllocationPopupState extends State<AllocationPopup> {
                       Divider(color: Colors.grey.shade300),
 
                       const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
+                      Text(
+                        "Allocation History",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                      history.isEmpty
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(vertical: 40),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                "No allocation history",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  headingRowColor: WidgetStatePropertyAll(
+                                    Colors.grey.shade100,
+                                  ),
+                                  columns: const [
+                                    DataColumn(label: Text("Train")),
+                                    DataColumn(label: Text("Status")),
+                                    DataColumn(label: Text("Purpose")),
+                                    DataColumn(label: Text("Allocated On")),
+                                  ],
+                                  rows: history.map((item) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(item.trainNo)),
+                                        DataCell(Text(item.status)),
+                                        DataCell(Text(item.purpose)),
+                                        DataCell(Text(item.inwardTime)),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
                       //------------------------------------------------
                       // BUTTONS
                       //------------------------------------------------
@@ -391,8 +422,18 @@ class _AllocationPopupState extends State<AllocationPopup> {
                                   return;
                                 }
 
-                                // TODO:
-                                // Call Allocation Save API
+                                context.read<AllocationProvider>().allocate(
+                                  Allocation(
+                                    trackId: widget.trackId,
+                                    trainNo: trainNo,
+                                    status: status,
+                                    purpose: purpose,
+                                    inwardTime: inwardTime,
+                                    outwardTime: outwardTime,
+                                    outwardScheduled: outwardScheduled,
+                                    remarks: remarksController.text,
+                                  ),
+                                );
 
                                 Navigator.pop(context);
                               },
