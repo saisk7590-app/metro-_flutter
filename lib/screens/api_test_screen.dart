@@ -48,9 +48,12 @@ class _ApiTestScreenState extends State<ApiTestScreen> {
             itemBuilder: (context, index) {
               final status = provider.statuses[index];
 
-              return ListTile(
-                title: Text(status.name),
-                subtitle: Text('ID: ${status.id}'),
+              return Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  title: Text(status.name),
+                  subtitle: Text('ID: ${status.id}'),
+                ),
               );
             },
           );

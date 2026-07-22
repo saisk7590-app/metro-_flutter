@@ -159,38 +159,44 @@ class _CustomDropdownState extends State<CustomDropdown> {
           ),
 
           /// OPTIONS
+          /// OPTIONS
           if (isOpen)
-            Material(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(6),
-              child: Container(
-                margin: const EdgeInsets.only(top: 6),
-                constraints: const BoxConstraints(maxHeight: 220),
-                decoration: BoxDecoration(
-                  border: Border.all(color: colors.outline),
+            Container(
+              margin: const EdgeInsets.only(top: 6),
+              child: Material(
+                color: theme.cardColor,
+                //borderRadius: BorderRadius.circular(6),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
+                  side: BorderSide(color: colors.outline),
                 ),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: displayOptions.length,
-                  itemBuilder: (context, index) {
-                    final item = displayOptions[index];
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 220),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: displayOptions.length,
+                    itemBuilder: (context, index) {
+                      final item = displayOptions[index];
 
-                    return ListTile(
-                      dense: true,
-                      title: Text(item),
-                      onTap: () {
-                        widget.onChanged(item);
+                      return Material(
+                        color: Colors.transparent,
+                        child: ListTile(
+                          dense: true,
+                          title: Text(item),
+                          onTap: () {
+                            widget.onChanged(item);
 
-                        _controller.text = item;
+                            _controller.text = item;
 
-                        setState(() {
-                          search = '';
-                          isOpen = false;
-                        });
-                      },
-                    );
-                  },
+                            setState(() {
+                              search = '';
+                              isOpen = false;
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

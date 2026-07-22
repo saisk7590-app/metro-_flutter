@@ -301,20 +301,23 @@ class _AllocationPopupState extends State<AllocationPopup> {
                       //------------------------------------------------
                       // OUTWARD SCHEDULED
                       //------------------------------------------------
-                      CheckboxListTile(
-                        value: outwardScheduled,
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: const Text(
-                          "Outward Scheduled",
-                          style: TextStyle(fontSize: 14),
+                      Material(
+                        color: Colors.transparent,
+                        child: CheckboxListTile(
+                          value: outwardScheduled,
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: const Text(
+                            "Outward Scheduled",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              outwardScheduled = value ?? false;
+                            });
+                          },
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            outwardScheduled = value ?? false;
-                          });
-                        },
                       ),
 
                       const SizedBox(height: 12),

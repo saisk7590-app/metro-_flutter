@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:math' as math;
 import '../constants/map_data.dart';
 import '../providers/active_trains_provider.dart';
 import '../widgets/assign_train_popup.dart';
@@ -67,24 +67,26 @@ class _DepotMapState extends State<DepotMap> {
 
       final viewerBox =
           _viewerKey.currentContext?.findRenderObject() as RenderBox?;
+      final mapBox = _mapKey.currentContext?.findRenderObject() as RenderBox?;
 
-      if (viewerBox == null) return;
+      if (viewerBox == null || mapBox == null) return;
+      debugPrint("Viewer Size: ${viewerBox.size}");
+      debugPrint("Map Size: ${mapBox.size}");
 
       final viewport = viewerBox.size;
+      final mapSize = mapBox.size;
 
-      const mapWidth = 1800.0;
-      const mapHeight = 1200.0;
+      final scale = math.min(
+        viewport.width / mapSize.width,
+        viewport.height / mapSize.height,
+      );
 
-      final scale = (viewport.width / mapWidth) < (viewport.height / mapHeight)
-          ? (viewport.width / mapWidth)
-          : (viewport.height / mapHeight);
-
-      final dx = (viewport.width - mapWidth * scale) / 2;
-      final dy = (viewport.height - mapHeight * scale) / 2;
+      final dx = (viewport.width - mapSize.width * scale) / 2;
+      final dy = (viewport.height - mapSize.height * scale) / 2;
 
       _controller.value = Matrix4.identity()
-        ..translateByDouble(dx, dy, 0, 1)
-        ..scaleByDouble(scale, scale, 1, 1);
+        ..translate(dx, dy)
+        ..scale(scale);
     });
   }
 

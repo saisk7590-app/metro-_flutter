@@ -66,27 +66,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           const SizedBox(height: 16),
 
-          /// RESET BUTTON
-          if (selectedDepot != 'Select Depot')
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // connect later
-                },
-                icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Reset'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-            ),
-
-          if (selectedDepot != 'Select Depot') const SizedBox(height: 12),
-
           /// MAP
           DepotMap(
             depot: selectedDepot == 'Select Depot' ? '' : selectedDepot,

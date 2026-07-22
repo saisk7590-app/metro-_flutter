@@ -21,15 +21,21 @@ class HistoryScreen extends StatelessWidget {
           Expanded(
             child: ListView(
               children: const [
-                ListTile(
-                  title: Text('TS-01'),
-                  subtitle: Text('Brake Testing'),
-                  trailing: Text('Completed'),
+                Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    title: Text('TS-01'),
+                    subtitle: Text('Brake Testing'),
+                    trailing: Text('Completed'),
+                  ),
                 ),
-                ListTile(
-                  title: Text('TS-05'),
-                  subtitle: Text('Inspection'),
-                  trailing: Text('In Progress'),
+                Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    title: Text('TS-05'),
+                    subtitle: Text('Inspection'),
+                    trailing: Text('In Progress'),
+                  ),
                 ),
               ],
             ),
