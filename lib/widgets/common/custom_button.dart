@@ -5,6 +5,7 @@ class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isSecondary;
   final Color? backgroundColor;
+  final IconData? icon;
 
   const CustomButton({
     super.key,
@@ -12,6 +13,7 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     this.isSecondary = false,
     this.backgroundColor,
+    this.icon,
   });
 
   @override
@@ -33,13 +35,24 @@ class CustomButton extends StatelessWidget {
           side: isSecondary ? BorderSide(color: primaryColor) : BorderSide.none,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+
+            if (icon != null) ...[
+              const SizedBox(width: 8),
+              Icon(icon, size: 18),
+            ],
+          ],
         ),
       ),
     );

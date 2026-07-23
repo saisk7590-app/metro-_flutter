@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 // import '../providers/status_provider.dart';
 // import '../providers/train_provider.dart';
 import 'package:provider/provider.dart';
-import '../providers/allocation_provider.dart';
-import '../models/allocation.dart';
-import '../widgets/custom_dropdown.dart';
-import '../widgets/custom_input.dart';
-import '../widgets/custom_button.dart';
+import '../../providers/allocation_provider.dart';
+import '../../models/allocation.dart';
+import '../../widgets/common/custom_dropdown.dart';
+import '../../widgets/common/custom_input.dart';
+import '../../widgets/common/custom_button.dart';
 
 class AllocationPopup extends StatefulWidget {
   final String depotName;

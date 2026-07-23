@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
-import '../constants/map_data.dart';
-import '../providers/active_trains_provider.dart';
-import '../widgets/assign_train_popup.dart';
-import '../widgets/train_details_popup.dart';
+import '../../constants/map_data.dart';
+import '../../providers/active_trains_provider.dart';
+import '../../widgets/popups/assign_train_popup.dart';
+import 'train_details_popup.dart';
 
 class DepotMap extends StatefulWidget {
   final String depot;
@@ -85,8 +85,8 @@ class _DepotMapState extends State<DepotMap> {
       final dy = (viewport.height - mapSize.height * scale) / 2;
 
       _controller.value = Matrix4.identity()
-        ..translate(dx, dy)
-        ..scale(scale);
+        ..translateByDouble(dx, dy, 0, 1)
+        ..scaleByDouble(scale, scale, scale, 1);
     });
   }
 
@@ -119,7 +119,7 @@ class _DepotMapState extends State<DepotMap> {
 
       _controller.value = Matrix4.identity()
         ..translateByDouble(tx, ty, 0, 1)
-        ..scaleByDouble(zoom, zoom, 1, 1);
+        ..scaleByDouble(zoom, zoom, zoom, 1);
     });
   }
 

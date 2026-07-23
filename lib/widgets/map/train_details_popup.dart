@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'assign_train_popup.dart';
-import '../providers/active_trains_provider.dart';
-import '../widgets/custom_button.dart';
+import '../popups/assign_train_popup.dart';
+import '../../providers/active_trains_provider.dart';
+import '../../widgets/common/custom_button.dart';
 
 class TrainDetailsPopup extends StatelessWidget {
   final TrainAssignment assignment;

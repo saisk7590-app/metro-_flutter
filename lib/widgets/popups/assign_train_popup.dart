@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/active_trains_provider.dart';
-import '../widgets/custom_button.dart';
-import '../widgets/custom_dropdown.dart';
-import '../widgets/custom_input.dart';
+import '../../providers/active_trains_provider.dart';
+import '../../widgets/common/custom_button.dart';
+import '../../widgets/common/custom_dropdown.dart';
+import '../../widgets/common/custom_input.dart';
 
 class AssignTrainPopup extends StatefulWidget {
   final String depotName;

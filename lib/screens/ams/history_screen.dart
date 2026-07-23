@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../widgets/custom_header.dart';
+import '../../widgets/common/custom_header.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
+    final colors = Theme.of(context).colorScheme;
+
+    return ColoredBox(
+      color: colors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -20,6 +22,7 @@ class HistoryScreen extends StatelessWidget {
 
           Expanded(
             child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               children: const [
                 Material(
                   color: Colors.transparent,

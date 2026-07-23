@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/active_trains_provider.dart';
-import '../constants/map_data.dart';
+import '../../providers/active_trains_provider.dart';
+import '../../constants/map_data.dart';
 
 class SectionButtons extends StatelessWidget {
   final String depot;

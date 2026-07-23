@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:metro_flutter/providers/status_provider.dart';
-//import 'package:metro_flutter/screens/ams_update_screen.dart';
-//import 'package:metro_flutter/screens/ams_update_screen.dart';
-//import 'package:metro_flutter/screens/api_test_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:metro_flutter/providers/maintenance_purpose_provider.dart';
 import 'providers/train_provider.dart';
-
 import 'package:metro_flutter/providers/allocation_provider.dart';
-import 'navigation/main_navigation_screen.dart';
-//import 'screens/api_test_screen.dart';
-import 'theme/app_theme.dart';
-import 'theme/theme_notifier.dart';
 import 'package:metro_flutter/providers/maintenance_bay_provider.dart';
 import 'package:metro_flutter/providers/active_trains_provider.dart';
+import 'package:metro_flutter/screens/auth/login_screen.dart';
+import 'theme/app_theme.dart';
+import 'theme/theme_notifier.dart';
 
 void main() {
   runApp(
@@ -46,7 +41,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeNotifier.themeMode,
 
-      home: const MainNavigationScreen(),
+      home: const LoginScreen(),
     );
   }
 }

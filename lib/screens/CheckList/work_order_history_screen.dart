@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/drawer_menu_button.dart';
-import '../../widgets/coming_soon_screen.dart';
+import '../../widgets/common/custom_header.dart';
+import '../../widgets/common/coming_soon_screen.dart';
 
 class WorkOrderHistoryScreen extends StatelessWidget {
   const WorkOrderHistoryScreen({super.key});
@@ -10,51 +10,26 @@ class WorkOrderHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor:
-            isDark ? const Color(0xFF1E293B) : Colors.white,
-        centerTitle: false,
-
-        leading: DrawerMenuButton(),
-
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "WORK ORDER HISTORY",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
-                color: theme.primaryColor,
-                letterSpacing: 0.5,
-              ),
+    return ColoredBox(
+      color: colors.surface,
+      child: Column(
+        children: const [
+          CustomHeader(
+            title: "WORK ORDER HISTORY",
+            subtitle: "Completed Work Orders",
+          ),
+          Expanded(
+            child: ComingSoonScreen(
+              moduleName: "CHECKLIST MODULE",
+              title: "Work Order History",
+              description:
+                  "Completed work orders and maintenance history will be available here.",
+              icon: Icons.history_outlined,
             ),
-            Text(
-              "Completed Work Orders",
-              style: TextStyle(
-                fontSize: 12,
-                color: colors.secondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      body: const ComingSoonScreen(
-        moduleName: "CHECKLIST MODULE",
-        title: "Work Order History",
-        description:
-            "Completed work orders and maintenance history will be available here.",
-        icon: Icons.history_outlined,
+          ),
+        ],
       ),
     );
   }
 }
-
-  

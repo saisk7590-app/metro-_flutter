@@ -7,6 +7,9 @@ class CustomInput extends StatelessWidget {
   final bool multiline;
   final bool enabled;
   final TextInputType keyboardType;
+  final bool obscureText;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
 
   const CustomInput({
     super.key,
@@ -16,6 +19,9 @@ class CustomInput extends StatelessWidget {
     this.multiline = false,
     this.enabled = true,
     this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.prefixIcon,
+    this.suffixIcon,
   });
 
   @override
@@ -47,6 +53,7 @@ class CustomInput extends StatelessWidget {
             controller: controller,
             enabled: enabled,
             keyboardType: keyboardType,
+            obscureText: obscureText,
             maxLines: multiline ? 4 : 1,
             style: TextStyle(
               fontSize: 16,
@@ -55,6 +62,8 @@ class CustomInput extends StatelessWidget {
             decoration: InputDecoration(
               hintText: placeholder,
               hintStyle: TextStyle(color: colors.secondary),
+              prefixIcon: prefixIcon,
+              suffixIcon: suffixIcon,
               filled: true,
 
               fillColor: colors.surface,

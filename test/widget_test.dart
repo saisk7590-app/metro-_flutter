@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:metro_flutter/widgets/custom_dropdown.dart';
+import 'package:metro_flutter/widgets/common/custom_dropdown.dart';
 
 void main() {
   testWidgets('CustomDropdown opens options without throwing an assertion', (
