@@ -27,82 +27,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         children: [
           const CustomHeader(title: "Dashboard", subtitle: "Depot Overview"),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
 
-                /// DEPOT DROPDOWN
-                CustomDropdown(
-                  key: ValueKey(selectedDepot),
-                  label: 'Depot',
-                  selectedValue: selectedDepot,
-                  options: const ['Select Depot', 'Miyapur', 'Uppal'],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedDepot = value;
-
-                      if (value == 'Select Depot') {
-                        selectedSection = '';
-                      } else {
-                        selectedSection = MapData.depotSections[value]!.first;
-                      }
-                    });
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                /// SECTION BUTTONS
-                if (selectedDepot != 'Select Depot')
-                  SectionButtons(
-                    depot: selectedDepot,
-                    sections: MapData.depotSections[selectedDepot]!,
-                    selectedSection: selectedSection,
-                    colors: MapData.sectionColors[selectedDepot]!,
-                    onSectionSelected: (section) {
+                  /// DEPOT DROPDOWN
+                  CustomDropdown(
+                    key: ValueKey(selectedDepot),
+                    label: 'Depot',
+                    selectedValue: selectedDepot,
+                    options: const ['Select Depot', 'Miyapur', 'Uppal'],
+                    onChanged: (value) {
                       setState(() {
-                        selectedSection = section;
+                        selectedDepot = value;
+
+                        if (value == 'Select Depot') {
+                          selectedSection = '';
+                        } else {
+                          selectedSection = MapData.depotSections[value]!.first;
+                        }
                       });
                     },
                   ),
-              ],
-            ),
-          ),
 
-          const SizedBox(height: 8),
+                  const SizedBox(height: 16),
 
-          /// MAP
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: DepotMap(
-                depot: selectedDepot == 'Select Depot' ? '' : selectedDepot,
-                selectedSection: selectedSection,
+                  /// SECTION BUTTONS
+                  if (selectedDepot != 'Select Depot')
+                    SectionButtons(
+                      depot: selectedDepot,
+                      sections: MapData.depotSections[selectedDepot]!,
+                      selectedSection: selectedSection,
+                      colors: MapData.sectionColors[selectedDepot]!,
+                      onSectionSelected: (section) {
+                        setState(() {
+                          selectedSection = section;
+                        });
+                      },
+                    ),
+
+                  const SizedBox(height: 16),
+
+                  /// MAP
+                  DepotMap(
+                    depot: selectedDepot == 'Select Depot' ? '' : selectedDepot,
+                    selectedSection: selectedSection,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  if (selectedDepot != 'Select Depot')
+                    BayAllocationTable(
+                      title: "$selectedSection Allocation",
+                      depotName: selectedDepot,
+                      sectionName: selectedSection,
+                      tracks: MapData.getTracks(selectedDepot, selectedSection),
+                    ),
+                ],
               ),
             ),
           ),
-
-          const SizedBox(height: 12),
-
-          if (selectedDepot != 'Select Depot')
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: BayAllocationTable(
-                  title: "$selectedSection Allocation",
-                  depotName: selectedDepot,
-                  sectionName: selectedSection,
-                  tracks: MapData.getTracks(selectedDepot, selectedSection),
-                ),
-              ),
-            )
-          else
-            const SizedBox.shrink(),
         ],
       ),
     );

@@ -76,82 +76,81 @@ class BayAllocationTable extends StatelessWidget {
           ),
 
           /// TABLE
-          Expanded(
-            child: tracks.isEmpty
-                ? const Center(
-                    child: Text(
-                      "No tracks available",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
-                : Scrollbar(
-                    child: SingleChildScrollView(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          headingRowColor:
-                              WidgetStateProperty.all(Colors.grey.shade100),
-                          columnSpacing: 28,
-                          horizontalMargin: 16,
-                          columns: const [
-                            DataColumn(
-                              label: Text(
-                                "Bay",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowColor: WidgetStateProperty.all(Colors.grey.shade100),
+              columnSpacing: 28,
+              horizontalMargin: 16,
+
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    "Bay",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Inward Time",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Outward Time",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Actions",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+
+              rows: tracks.map((track) {
+                final allocation = allocationProvider.getAllocation(track);
+                return DataRow(
+                  cells: [
+                    // Purpose (Track Name)
+                    DataCell(Text(track)),
+
+                    DataCell(Text(allocation?.inwardTime ?? "--")),
+
+                    DataCell(Text(allocation?.outwardTime ?? "--")),
+
+                    // Actions
+                    DataCell(
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AllocationPopup(
+                              depotName: depotName,
+                              sectionName: sectionName,
+                              trackId: track,
                             ),
-                            DataColumn(
-                              label: Text(
-                                "Inward Time",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Text(
-                                "Outward Time",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Text(
-                                "Actions",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                          rows: tracks.map((track) {
-                            final allocation =
-                                allocationProvider.getAllocation(track);
-                            return DataRow(
-                              cells: [
-                                // Purpose (Track Name)
-                                DataCell(Text(track)),
-                                DataCell(Text(allocation?.inwardTime ?? "--")),
-                                DataCell(Text(allocation?.outwardTime ?? "--")),
-                                // Actions
-                                DataCell(
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AllocationPopup(
-                                          depotName: depotName,
-                                          sectionName: sectionName,
-                                          trackId: track,
-                                        ),
-                                      );
-                                    },
-                                    child: const Text("Allocate"),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
+                          );
+                        },
+                        child: const Text("Allocate"),
                       ),
                     ),
-                  ),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
+
+          if (tracks.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text(
+                "No tracks available",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
         ],
       ),
     );
