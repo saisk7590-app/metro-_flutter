@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../navigation/main_navigation_screen.dart';
-import '../../theme/spacing.dart';
-import '../../widgets/common/custom_button.dart';
-import '../../widgets/common/custom_input.dart';
+import '../../../theme/spacing.dart';
+import '../../../widgets/common/custom_button.dart';
+import '../../../widgets/common/custom_input.dart';
 
 class LoginForm extends StatelessWidget {
   final TextEditingController usernameController;
   final TextEditingController passwordController;
-
   final bool obscurePassword;
   final VoidCallback onTogglePassword;
+  final VoidCallback onLogin;
 
   const LoginForm({
     super.key,
@@ -18,6 +17,7 @@ class LoginForm extends StatelessWidget {
     required this.passwordController,
     required this.obscurePassword,
     required this.onTogglePassword,
+    required this.onLogin,
   });
 
   @override
@@ -52,12 +52,7 @@ class LoginForm extends StatelessWidget {
         CustomButton(
           title: "SECURE LOGIN",
           icon: Icons.arrow_forward,
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-            );
-          },
+          onPressed: onLogin,
         ),
       ],
     );

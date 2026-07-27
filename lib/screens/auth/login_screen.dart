@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import '../../theme/spacing.dart';
 
 import 'forgot_password_screen.dart';
+import 'security_verification_screen.dart';
 
-import '../../widgets/login/login_logo.dart';
-import '../../widgets/login/login_header.dart';
-import '../../widgets/login/login_form.dart';
-import '../../widgets/login/forgot_password_link.dart';
-import '../../widgets/login/security_notice.dart';
+import '../../../widgets/auth/login/login_logo.dart';
+import '../../../widgets/auth/login/login_header.dart';
+import '../../../widgets/auth/login/login_form.dart';
+import '../../../widgets/auth/login/forgot_password_link.dart';
+import '../../../widgets/auth/login/security_notice.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -59,6 +60,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     setState(() {
                       obscurePassword = !obscurePassword;
                     });
+                  },
+                  onLogin: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SecurityVerificationScreen(),
+                      ),
+                    );
                   },
                 ),
 

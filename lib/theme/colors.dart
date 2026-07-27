@@ -24,6 +24,8 @@ class LightColors {
   // Login Screen
   static const logoBackground = Color(0xFF0A2D7C);
   static const logoText = Color(0xFF0A2D7C);
+
+  static const outlineVariant = Color(0xFFE5E7EB);
 }
 
 class DarkColors {
@@ -50,4 +52,6 @@ class DarkColors {
   // Login Screen
   static const logoBackground = Color(0xFF00AEEF);
   static const logoText = Color(0xFF00AEEF);
+
+  static const outlineVariant = Color(0xFF374151);
 }

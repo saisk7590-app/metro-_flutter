@@ -14,6 +14,7 @@ class AppTheme {
       surface: LightColors.card,
       surfaceContainerHighest: LightColors.headerBackground,
       outline: LightColors.border,
+      outlineVariant: LightColors.outlineVariant
     ),
 
     appBarTheme: const AppBarTheme(
@@ -39,6 +40,7 @@ class AppTheme {
       surface: DarkColors.card,
       surfaceContainerHighest: DarkColors.headerBackground,
       outline: DarkColors.border,
+      outlineVariant: DarkColors.outlineVariant
     ),
 
     appBarTheme: const AppBarTheme(
