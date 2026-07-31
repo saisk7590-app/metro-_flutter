@@ -8,8 +8,15 @@ import 'train_details_popup.dart';
 
 class TrackMarkers extends StatelessWidget {
   final String depot;
+  final double scaleX;
+  final double scaleY;
 
-  const TrackMarkers({super.key, required this.depot});
+  const TrackMarkers({
+    super.key,
+    required this.depot,
+    this.scaleX = 1.0,
+    this.scaleY = 1.0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +48,10 @@ class TrackMarkers extends StatelessWidget {
             final assignment = activeTrainsProvider.getTrainAtSlot(trackId);
 
             return Positioned(
-              left: bounds.x,
-              top: bounds.y,
-              width: bounds.w,
-              height: bounds.h,
+              left: bounds.x * scaleX,
+              top: bounds.y * scaleY,
+              width: bounds.w * scaleX,
+              height: bounds.h * scaleY,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {

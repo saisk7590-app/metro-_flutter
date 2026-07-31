@@ -10,6 +10,7 @@ import '../../widgets/auth/security/pattern_divider.dart';
 import '../../widgets/auth/security/pattern_lock_widget.dart';
 import '../../widgets/auth/security/security_intro.dart';
 import '../../widgets/auth/security/security_app_header.dart';
+import '../../widgets/common/responsive_container.dart';
 
 class SecurityVerificationScreen extends StatefulWidget {
   const SecurityVerificationScreen({super.key});
@@ -54,46 +55,50 @@ class _SecurityVerificationScreenState
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  /// Shield + Title + Description
-                  const SecurityIntro(),
+              child: ResponsiveContainer(
+                maxWidth: 600,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    /// Shield + Title + Description
+                    const SecurityIntro(),
 
-                  const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
 
-                  /// Biometrics
-                  BiometricCard(onBiometricPressed: _goToDashboard),
+                    /// Biometrics
+                    BiometricCard(onBiometricPressed: _goToDashboard),
 
-                  const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
 
-                  const PatternDivider(),
+                    const PatternDivider(),
 
-                  const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
 
-                  /// Pattern Lock
-                  PatternLockWidget(onPatternComplete: _onPatternComplete),
+                    /// Pattern Lock
+                    PatternLockWidget(onPatternComplete: _onPatternComplete),
 
-                  const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
 
-                  /// Confirm
-                  CustomButton(
-                    title: "CONFIRM PATTERN",
-                    icon: Icons.verified_user_outlined,
-                    enabled: canConfirm,
-                    onPressed: canConfirm ? _goToDashboard : null,
-                  ),
+                    /// Confirm
+                    CustomButton(
+                      title: "CONFIRM PATTERN",
+                      icon: Icons.verified_user_outlined,
+                      enabled: canConfirm,
+                      onPressed: canConfirm ? _goToDashboard : null,
+                    ),
 
-                  const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.md),
 
-                  /// Back
-                  CustomButton(
-                    title: "BACK TO LOGIN",
-                    icon: Icons.arrow_back,
-                    isSecondary: true,
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
+                    /// Back
+                    CustomButton(
+                      title: "BACK TO LOGIN",
+                      icon: Icons.arrow_back,
+                      isSecondary: true,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

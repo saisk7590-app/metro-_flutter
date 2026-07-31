@@ -10,6 +10,7 @@ import '../../../widgets/auth/login/login_header.dart';
 import '../../../widgets/auth/login/login_form.dart';
 import '../../../widgets/auth/login/forgot_password_link.dart';
 import '../../../widgets/auth/login/security_notice.dart';
+import '../../widgets/common/responsive_container.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,9 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: colors.surface,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: ResponsiveContainer(
+            maxWidth: 600,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

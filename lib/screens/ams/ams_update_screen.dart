@@ -11,6 +11,7 @@ import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_dropdown.dart';
 import '../../widgets/common/custom_header.dart';
 import '../../widgets/common/custom_input.dart';
+import '../../widgets/common/responsive_container.dart';
 
 class AMSUpdateScreen extends StatefulWidget {
   const AMSUpdateScreen({super.key});
@@ -134,8 +135,8 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                 children: [
                   const SizedBox(height: 20),
                   Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 600),
+                    child: ResponsiveContainer(
+                      maxWidth: 600,
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(

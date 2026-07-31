@@ -213,8 +213,8 @@ class _DepotMapState extends State<DepotMap> {
                 // allow your code (_zoomToSection) to control zoom
                 minScale: .2,
                 maxScale: 8,
-                // user cannot accidentally zoom with mouse wheel
-                scaleEnabled: false,
+                // allow user pinch-to-zoom gestures
+                scaleEnabled: true,
                 // user can still drag/pan the map
                 panEnabled: true,
                 constrained: false,
@@ -251,42 +251,59 @@ class _DepotMapState extends State<DepotMap> {
                   },
                   child: Stack(
                     children: [
-                      SizedBox(
-                        key: _mapKey,
-                        width: 1224,
-                        height: 792,
-                        child: widget.depot == "Miyapur"
-                            ? SvgPicture.asset(
-                                "assets/maps/miyapur_layout.svg",
-                                fit: BoxFit.contain,
-                              )
-                            : SvgPicture.asset(
-                                "assets/maps/upl_layout_new.svg",
-                                fit: BoxFit.contain,
-                              ),
-                      ),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final availableWidth = constraints.maxWidth.isFinite
+                              ? constraints.maxWidth
+                              : MediaQuery.of(context).size.width;
+                          const assetAspect = 1224.0 / 792.0;
+                          final calculatedHeight = availableWidth / assetAspect;
 
-                      //-------------------------------------------------
-                      // Tracks
-                      //-------------------------------------------------
-                      ..._buildTrackMarkers(),
+                          final scaleX = availableWidth / 1224.0;
+                          final scaleY = calculatedHeight / 792.0;
 
-                      //-------------------------------------------------
-                      // Developer Marker
-                      //-------------------------------------------------
-                      if (developerMode && _tapPosition != null)
-                        Positioned(
-                          left: _tapPosition!.dx - 6,
-                          top: _tapPosition!.dy - 6,
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
+                          return SizedBox(
+                            key: _mapKey,
+                            width: availableWidth,
+                            height: calculatedHeight,
+                            child: Stack(
+                              children: [
+                                widget.depot == "Miyapur"
+                                    ? SvgPicture.asset(
+                                        "assets/maps/miyapur_layout.svg",
+                                        fit: BoxFit.contain,
+                                      )
+                                    : SvgPicture.asset(
+                                        "assets/maps/upl_layout_new.svg",
+                                        fit: BoxFit.contain,
+                                      ),
+
+                                //-------------------------------------------------
+                                // Tracks (scaled)
+                                //-------------------------------------------------
+                                ..._buildTrackMarkers(scaleX, scaleY),
+
+                                //-------------------------------------------------
+                                // Developer Marker
+                                //-------------------------------------------------
+                                if (developerMode && _tapPosition != null)
+                                  Positioned(
+                                    left: _tapPosition!.dx - 6,
+                                    top: _tapPosition!.dy - 6,
+                                    child: Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                          ),
-                        ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -316,7 +333,7 @@ class _DepotMapState extends State<DepotMap> {
     );
   }
 
-  List<Widget> _buildTrackMarkers() {
+  List<Widget> _buildTrackMarkers(double scaleX, double scaleY) {
     if (widget.depot.isEmpty) return [];
 
     final depotCode = widget.depot == 'Miyapur' ? 'MP' : 'UP';
@@ -335,10 +352,10 @@ class _DepotMapState extends State<DepotMap> {
 
       markers.add(
         Positioned(
-          left: bounds.x,
-          top: bounds.y,
-          width: bounds.w,
-          height: bounds.h,
+          left: bounds.x * scaleX,
+          top: bounds.y * scaleY,
+          width: bounds.w * scaleX,
+          height: bounds.h * scaleY,
           child: GestureDetector(
             onTap: () {
               if (assignment == null) {
