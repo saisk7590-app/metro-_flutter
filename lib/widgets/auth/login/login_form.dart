@@ -8,6 +8,7 @@ class LoginForm extends StatelessWidget {
   final TextEditingController usernameController;
   final TextEditingController passwordController;
   final bool obscurePassword;
+  final bool isLoading;
   final VoidCallback onTogglePassword;
   final VoidCallback onLogin;
 
@@ -16,6 +17,7 @@ class LoginForm extends StatelessWidget {
     required this.usernameController,
     required this.passwordController,
     required this.obscurePassword,
+    required this.isLoading,
     required this.onTogglePassword,
     required this.onLogin,
   });
@@ -43,16 +45,17 @@ class LoginForm extends StatelessWidget {
                   ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
             ),
-            onPressed: onTogglePassword,
+            onPressed: isLoading ? null : onTogglePassword,
           ),
         ),
 
         const SizedBox(height: AppSpacing.md),
 
         CustomButton(
-          title: "SECURE LOGIN",
+          title: isLoading ? "SIGNING IN..." : "SECURE LOGIN",
           icon: Icons.arrow_forward,
-          onPressed: onLogin,
+          isLoading: isLoading,
+          onPressed: isLoading ? null : onLogin,
         ),
       ],
     );

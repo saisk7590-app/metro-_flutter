@@ -6,6 +6,9 @@ import 'providers/train_provider.dart';
 import 'package:metro_flutter/providers/allocation_provider.dart';
 import 'package:metro_flutter/providers/maintenance_bay_provider.dart';
 import 'package:metro_flutter/providers/active_trains_provider.dart';
+import 'package:metro_flutter/providers/login_provider.dart';
+import 'package:metro_flutter/providers/trainset_meter_reading_provider.dart';
+
 import 'package:metro_flutter/screens/auth/login_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
@@ -21,6 +24,11 @@ void main() {
         ChangeNotifierProvider(create: (_) => MaintenanceBayProvider()),
         ChangeNotifierProvider(create: (_) => ActiveTrainsProvider()),
         ChangeNotifierProvider(create: (_) => AllocationProvider()),
+
+        // Login Provider
+        ChangeNotifierProvider(create: (_) => LoginProvider()),
+        // Trainset Meter Reading Provider
+        ChangeNotifierProvider(create: (_) => TrainsetMeterReadingProvider()),
       ],
       child: const MyApp(),
     ),

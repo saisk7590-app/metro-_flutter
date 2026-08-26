@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/common/custom_header.dart';
-import '../../widgets/common/coming_soon_screen.dart';
+import '../../widgets/checklist/checklist_filters.dart';
+import '../../widgets/checklist/checklist_list.dart';
 
 class ChecklistScreen extends StatelessWidget {
   const ChecklistScreen({super.key});
@@ -13,17 +14,15 @@ class ChecklistScreen extends StatelessWidget {
     return ColoredBox(
       color: colors.surface,
       child: Column(
-        children: const [
-          CustomHeader(title: "CHECKLIST", subtitle: "Maintenance Checklist"),
-          Expanded(
-            child: ComingSoonScreen(
-              moduleName: "CHECKLIST MODULE",
-              title: "Checklist",
-              description:
-                  "Technicians will be able to complete assigned maintenance checklists from this screen.",
-              icon: Icons.fact_check_outlined,
-            ),
+        children: [
+          const CustomHeader(
+            title: "CHECKLIST",
+            subtitle: "Maintenance Checklist",
           ),
+
+          const ChecklistFilters(),
+
+          Expanded(child: ChecklistList()),
         ],
       ),
     );

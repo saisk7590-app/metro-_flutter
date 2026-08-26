@@ -15,13 +15,12 @@ class ChecklistNavigationScreen extends StatefulWidget {
       _ChecklistNavigationScreenState();
 }
 
-class _ChecklistNavigationScreenState
-    extends State<ChecklistNavigationScreen> {
+class _ChecklistNavigationScreenState extends State<ChecklistNavigationScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
-    WorkOrdersScreen(),
     ChecklistScreen(),
+    WorkOrdersScreen(),
     WorkOrderHistoryScreen(),
   ];
 
@@ -39,14 +38,14 @@ class _ChecklistNavigationScreenState
         selectedItemColor: Theme.of(context).primaryColor,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
-            activeIcon: Icon(Icons.assignment),
-            label: 'Work Orders',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.fact_check_outlined),
             activeIcon: Icon(Icons.fact_check),
             label: 'Checklist',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment_outlined),
+            activeIcon: Icon(Icons.assignment),
+            label: 'Work Orders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history_outlined),
