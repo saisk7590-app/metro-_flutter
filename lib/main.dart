@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:cronet_http/cronet_http.dart';
 import 'package:metro_flutter/providers/status_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:metro_flutter/providers/maintenance_purpose_provider.dart';
@@ -13,27 +15,42 @@ import 'package:metro_flutter/screens/auth/login_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
 
-void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeNotifier()),
-        ChangeNotifierProvider(create: (_) => StatusProvider()),
-        ChangeNotifierProvider(create: (_) => MaintenancePurposeProvider()),
-        ChangeNotifierProvider(create: (_) => TrainProvider()),
-        ChangeNotifierProvider(create: (_) => MaintenanceBayProvider()),
-        ChangeNotifierProvider(create: (_) => ActiveTrainsProvider()),
-        ChangeNotifierProvider(create: (_) => AllocationProvider()),
+// Conditional import: uses dart:io Platform on native, stub on web.
+import 'package:metro_flutter/utils/platform_check.dart'
+    if (dart.library.io) 'package:metro_flutter/utils/platform_check_native.dart';
 
-        // Login Provider
-        ChangeNotifierProvider(create: (_) => LoginProvider()),
-        // Trainset Meter Reading Provider
-        ChangeNotifierProvider(create: (_) => TrainsetMeterReadingProvider()),
-      ],
-      child: const MyApp(),
-    ),
+void main() {
+  final app = MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ThemeNotifier()),
+      ChangeNotifierProvider(create: (_) => StatusProvider()),
+      ChangeNotifierProvider(create: (_) => MaintenancePurposeProvider()),
+      ChangeNotifierProvider(create: (_) => TrainProvider()),
+      ChangeNotifierProvider(create: (_) => MaintenanceBayProvider()),
+      ChangeNotifierProvider(create: (_) => ActiveTrainsProvider()),
+      ChangeNotifierProvider(create: (_) => AllocationProvider()),
+
+      // Login Provider
+      ChangeNotifierProvider(create: (_) => LoginProvider()),
+      // Trainset Meter Reading Provider
+      ChangeNotifierProvider(create: (_) => TrainsetMeterReadingProvider()),
+    ],
+    child: const MyApp(),
   );
+
+  // On Android, use Cronet (Chromium's network stack) instead of dart:io's
+  // BoringSSL HttpClient. This fixes TLS renegotiation failures
+  // (NO_RENEGOTIATION error) with servers that require renegotiation.
+  if (isAndroidPlatform) {
+    http.runWithClient(
+      () => runApp(app),
+      () => CronetClient.defaultCronetEngine(),
+    );
+  } else {
+    runApp(app);
+  }
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
