@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../test_https.dart';
 import '../../theme/spacing.dart';
 
 import 'forgot_password_screen.dart';
-import 'security_verification_screen.dart';
+//import 'security_verification_screen.dart';
 
 import '../../../widgets/auth/login/login_logo.dart';
 import '../../../widgets/auth/login/login_header.dart';
@@ -38,40 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    final username = usernameController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (username.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter username and password')),
-      );
-      return;
-    }
-
-    final timeStamp = DateTime.now().toUtc().toIso8601String();
-
-    final success = await context.read<LoginProvider>().login(
-      userName: username,
-      password: password,
-      timeStamp: timeStamp,
-    );
-
-    if (!mounted) return;
-
-    if (success) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SecurityVerificationScreen()),
-      );
-    } else {
-      final error =
-          context.read<LoginProvider>().errorMessage ?? 'Login failed';
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error)));
-    }
+    await testHttpsConnection();
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
