@@ -48,6 +48,19 @@ void main() {
       final securityContext = SecurityContext.defaultContext;
       securityContext.allowLegacyUnsafeRenegotiation = true;
       final httpClient = HttpClient(context: securityContext);
+
+      // Accept the dev server's certificate even if the chain is incomplete.
+      // The server at nxamsdev.winfocus.co.in doesn't send full CA chain,
+      // causing CERTIFICATE_VERIFY_FAILED on Android.
+      httpClient.badCertificateCallback =
+          (X509Certificate cert, String host, int port) {
+        // Only trust your known server hosts — not every certificate.
+        const trustedHosts = [
+          'nxamsdev.winfocus.co.in',
+        ];
+        return trustedHosts.contains(host);
+      };
+
       return IOClient(httpClient);
     },
   );
