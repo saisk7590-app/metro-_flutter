@@ -1,6 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cronet_http/cronet_http.dart';
+import 'package:http/io_client.dart';
 import 'package:metro_flutter/providers/status_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:metro_flutter/providers/maintenance_purpose_provider.dart';
@@ -15,11 +16,15 @@ import 'package:metro_flutter/screens/auth/login_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
 
-// Conditional import: uses dart:io Platform on native, stub on web.
-import 'package:metro_flutter/utils/platform_check.dart'
-    if (dart.library.io) 'package:metro_flutter/utils/platform_check_native.dart';
-
 void main() {
+  // Create an HttpClient that allows legacy TLS renegotiation.
+  // This fixes the NO_RENEGOTIATION error on Android release builds
+  // where BoringSSL strictly refuses server-initiated renegotiation.
+  final securityContext = SecurityContext.defaultContext;
+  securityContext.allowLegacyUnsafeRenegotiation = true;
+  final httpClient = HttpClient(context: securityContext);
+  final client = IOClient(httpClient);
+
   final app = MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeNotifier()),
@@ -38,17 +43,12 @@ void main() {
     child: const MyApp(),
   );
 
-  // On Android, use Cronet (Chromium's network stack) instead of dart:io's
-  // BoringSSL HttpClient. This fixes TLS renegotiation failures
-  // (NO_RENEGOTIATION error) with servers that require renegotiation.
-  if (isAndroidPlatform) {
-    http.runWithClient(
-      () => runApp(app),
-      () => CronetClient.defaultCronetEngine(),
-    );
-  } else {
-    runApp(app);
-  }
+  // Use runWithClient to make all http.post()/http.get() calls in the app
+  // use our custom IOClient with TLS renegotiation enabled.
+  http.runWithClient(
+    () => runApp(app),
+    () => client,
+  );
 }
 
 
