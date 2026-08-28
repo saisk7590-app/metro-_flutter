@@ -5,12 +5,24 @@ Future<String> testHttpsConnection() async {
       'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/login';
 
   try {
-    final response = await http.get(
+    final response = await http.post(
       Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: '{}',
     );
 
-    return 'SUCCESS\nStatus: ${response.statusCode}\n\n${response.body}';
+    return '''
+SUCCESS
+Status: ${response.statusCode}
+
+Response:
+${response.body}
+''';
   } catch (e) {
-    return 'ERROR\n\n$e';
+    return '''
+ERROR
+
+$e
+''';
   }
 }
