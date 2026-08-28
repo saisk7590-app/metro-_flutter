@@ -17,14 +17,6 @@ import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
 
 void main() {
-  // Create an HttpClient that allows legacy TLS renegotiation.
-  // This fixes the NO_RENEGOTIATION error on Android release builds
-  // where BoringSSL strictly refuses server-initiated renegotiation.
-  final securityContext = SecurityContext.defaultContext;
-  securityContext.allowLegacyUnsafeRenegotiation = true;
-  final httpClient = HttpClient(context: securityContext);
-  final client = IOClient(httpClient);
-
   final app = MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeNotifier()),
@@ -43,11 +35,21 @@ void main() {
     child: const MyApp(),
   );
 
-  // Use runWithClient to make all http.post()/http.get() calls in the app
-  // use our custom IOClient with TLS renegotiation enabled.
+  // Use runWithClient so every http.post()/http.get() call in the app
+  // gets an HttpClient with TLS renegotiation enabled.
+  //
+  // The factory MUST return a NEW IOClient each time — the http package's
+  // top-level functions (http.post, http.get, etc.) call client.close()
+  // after each request completes. If we returned the same instance,
+  // the second request would fail with "Client is already closed".
   http.runWithClient(
     () => runApp(app),
-    () => client,
+    () {
+      final securityContext = SecurityContext.defaultContext;
+      securityContext.allowLegacyUnsafeRenegotiation = true;
+      final httpClient = HttpClient(context: securityContext);
+      return IOClient(httpClient);
+    },
   );
 }
 
