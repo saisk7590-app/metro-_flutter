@@ -14,6 +14,7 @@ class TrainsetMeterReadingRepository {
     required int pagination,
     required String token,
     required String userSession,
+    required String roleId,
   }) async {
     return await _apiService.getTrainsetMeterReadings(
       date: date,
@@ -22,6 +23,7 @@ class TrainsetMeterReadingRepository {
       pagination: pagination,
       token: token,
       userSession: userSession,
+      roleId: roleId,
     );
   }
 }

@@ -25,6 +25,7 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
     required int pagination,
     required String token,
     required String userSession,
+    required String roleId,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -39,6 +40,7 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
         pagination: pagination,
         token: token,
         userSession: userSession,
+        roleId: roleId,
       );
 
       _trainsetMeterReadings = result;

@@ -1,7 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
 import 'package:metro_flutter/providers/status_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:metro_flutter/providers/maintenance_purpose_provider.dart';
@@ -13,6 +10,7 @@ import 'package:metro_flutter/providers/login_provider.dart';
 import 'package:metro_flutter/providers/trainset_meter_reading_provider.dart';
 
 import 'package:metro_flutter/screens/auth/login_screen.dart';
+import 'http_client_runner.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
 
@@ -35,37 +33,8 @@ void main() {
     child: const MyApp(),
   );
 
-  // Use runWithClient so every http.post()/http.get() call in the app
-  // gets an HttpClient with TLS renegotiation enabled.
-  //
-  // The factory MUST return a NEW IOClient each time — the http package's
-  // top-level functions (http.post, http.get, etc.) call client.close()
-  // after each request completes. If we returned the same instance,
-  // the second request would fail with "Client is already closed".
-  http.runWithClient(
-    () => runApp(app),
-    () {
-      final securityContext = SecurityContext.defaultContext;
-      securityContext.allowLegacyUnsafeRenegotiation = true;
-      final httpClient = HttpClient(context: securityContext);
-
-      // Accept the dev server's certificate even if the chain is incomplete.
-      // The server at nxamsdev.winfocus.co.in doesn't send full CA chain,
-      // causing CERTIFICATE_VERIFY_FAILED on Android.
-      httpClient.badCertificateCallback =
-          (X509Certificate cert, String host, int port) {
-        // Only trust your known server hosts — not every certificate.
-        const trustedHosts = [
-          'nxamsdev.winfocus.co.in',
-        ];
-        return trustedHosts.contains(host);
-      };
-
-      return IOClient(httpClient);
-    },
-  );
+  runAppWithHttpClient(app);
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

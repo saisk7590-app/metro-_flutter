@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 //import 'package:crypto/crypto.dart';
@@ -11,10 +12,18 @@ import '../models/status_model.dart';
 import '../models/maintenance_purpose_model.dart';
 import '../models/train_model.dart';
 import '../models/maintenance_bay_model.dart';
+import '../utils/token_diagnostics.dart';
 
 class ApiService {
   static const String baseUrl =
       'http://192.168.14.60/services/assetregister/api';
+
+  String _fingerprint(String value) {
+    return crypto.sha256
+        .convert(utf8.encode(value))
+        .toString()
+        .substring(0, 12);
+  }
 
   // ============================================================
   // LOGIN API
@@ -43,15 +52,17 @@ class ApiService {
     );
 
     debugPrint('Login API Status: ${response.statusCode}');
-    debugPrint('Login API Response: ${response.body}');
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
+      final loginToken = data['token'] as String? ?? '';
+
+      logTokenDiagnostics('login response token', loginToken);
 
       return LoginModel.fromJson(data);
     }
 
-    throw Exception('Login failed: ${response.statusCode}');
+    throw Exception('Login failed: ${response.statusCode} ${response.body}');
   }
   // ============================================================
   // TRAINSET METER LIST API
@@ -68,6 +79,7 @@ class ApiService {
     required int pagination,
     required String token,
     required String userSession,
+    required String roleId,
   }) async {
     // ------------------------------------------------------------
     // REQUEST BODY
@@ -83,6 +95,10 @@ class ApiService {
     };
 
     final body = jsonEncode(requestBody);
+    final hashCheck = crypto.Hmac(
+      crypto.sha256,
+      utf8.encode('UW1nF0cu5S'),
+    ).convert(utf8.encode(body)).toString();
 
     // ------------------------------------------------------------
     // DEBUG
@@ -90,13 +106,9 @@ class ApiService {
 
     debugPrint('================ TRAINSET API DEBUG ================');
 
-    debugPrint('Authorization Token:');
-    debugPrint(token);
-
-    debugPrint('UserSession:');
-    debugPrint(userSession);
-
-    debugPrint('Role-Id: 1');
+    debugPrint('Authorization token received: ${token.isNotEmpty}');
+    debugPrint('UserSession received: ${userSession.isNotEmpty}');
+    debugPrint('Role-Id: $roleId');
 
     debugPrint('Request Body:');
     debugPrint(body);
@@ -105,19 +117,34 @@ class ApiService {
     // API REQUEST
     // ------------------------------------------------------------
 
+    final uri = Uri.parse(
+      'https://nxamsdev.winfocus.co.in/NxAmsDevServices/assetregister/api/asset-register/get-trainsets-meterreading',
+    );
+    final fullToken = token.replaceFirst(
+      RegExp(r'^Bearer\s+', caseSensitive: false),
+      '',
+    );
+    logTokenDiagnostics('after removing Bearer', fullToken);
+    final jwtToken = fullToken.split('&gF=').first;
+    logTokenDiagnostics('after removing &gF=', jwtToken);
+    debugPrint('Meter session fingerprint: ${_fingerprint(userSession)}');
+
+    Map<String, String> headersFor(String value) => {
+      'Accept': 'application/json, text/plain, */*',
+      'Content-Type': 'application/json',
+      'Hash-Check': hashCheck,
+      'Authorization': 'Bearer $value',
+      'Role-Id': roleId,
+      'userSession': userSession,
+      'Origin': 'https://nxamsdev.winfocus.co.in',
+      'Referer': 'https://nxamsdev.winfocus.co.in/',
+    };
+
+    logTokenDiagnostics('immediately before Authorization header', jwtToken);
+
     final response = await http.post(
-      Uri.parse(
-        'https://nxamsdev.winfocus.co.in/NxAmsDevServices/assetregister/api/asset-register/get-trainsets-meterreading',
-      ),
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-        'Role-Id': '1',
-        'userSession': userSession,
-        'Origin': 'https://nxamsdev.winfocus.co.in',
-        'Referer': 'https://nxamsdev.winfocus.co.in/',
-      },
+      uri,
+      headers: headersFor(jwtToken),
       body: body,
     );
 
@@ -131,15 +158,19 @@ class ApiService {
     debugPrint('====================================================');
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(response.body);
-
-      final List<dynamic> results = jsonDecode(json['results']);
+      final decoded = jsonDecode(response.body);
+      final rawResults = decoded is Map<String, dynamic>
+          ? decoded['results']
+          : decoded;
+      final List<dynamic> results = rawResults is String
+          ? jsonDecode(rawResults) as List<dynamic>
+          : rawResults as List<dynamic>? ?? <dynamic>[];
 
       return results.map((e) => TrainsetMeterReadingModel.fromJson(e)).toList();
     }
 
     throw Exception(
-      'Failed to load trainset meter readings: ${response.statusCode}',
+      'Failed to load trainset meter readings: ${response.statusCode} ${response.body}',
     );
   }
   // ============================================================

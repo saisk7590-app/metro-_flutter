@@ -7,6 +7,7 @@ import 'date_search_bar.dart';
 import 'meter_bottom_sheet.dart';
 import 'pagination_bar.dart';
 import 'trainset_row.dart';
+import '../../utils/token_diagnostics.dart';
 
 class TrainsetTable extends StatefulWidget {
   const TrainsetTable({super.key});
@@ -34,41 +35,34 @@ class _TrainsetTableState extends State<TrainsetTable> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<TrainsetMeterReadingProvider>();
-      final loginProvider = context.read<LoginProvider>();
-      final loginData = loginProvider.loginData;
-
-      if (loginData == null) {
-        return;
-      }
-      debugPrint('Token: ${loginData.token}');
-      debugPrint('UserSession: ${loginData.userSession}');
-      debugPrint('================ AUTH DEBUG ================');
-      debugPrint('TOKEN FROM LOGIN:');
-      debugPrint(loginData.token);
-
-      debugPrint('BEARER TOKEN:');
-      debugPrint(loginData.bearerToken);
-
-      debugPrint('RAW USER SESSION:');
-      debugPrint(loginData.userSession);
-
-      debugPrint('ENCODED USER SESSION:');
-      debugPrint(loginData.encodedUserSession);
-
-      debugPrint('ROLE ID:');
-      debugPrint(loginData.roleIds);
-
-      debugPrint('============================================');
-      provider.getTrainsetMeterReadings(
-        date: '2026-06-04T00:00:00',
-        pageNo: 1,
-        pageSize: 10,
-        pagination: 1,
-        token: loginData.bearerToken,
-        userSession: loginData.encodedUserSession,
-      );
+      _loadReadings();
     });
+  }
+
+  Future<void> _loadReadings() async {
+    final loginData = context.read<LoginProvider>().loginData;
+
+    if (loginData == null) {
+      return;
+    }
+
+    logTokenDiagnostics('after LoginProvider retrieval', loginData.token);
+
+    final date = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    ).toIso8601String().split('.').first;
+
+    await context.read<TrainsetMeterReadingProvider>().getTrainsetMeterReadings(
+      date: date,
+      pageNo: currentPage,
+      pageSize: itemsPerPage,
+      pagination: 1,
+      token: loginData.token,
+      userSession: loginData.encodedUserSession,
+      roleId: loginData.roleIds.split(',').first.trim(),
+    );
   }
 
   Future<void> pickDate() async {
@@ -82,7 +76,9 @@ class _TrainsetTableState extends State<TrainsetTable> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
+        currentPage = 1;
       });
+      await _loadReadings();
     }
   }
 
@@ -103,7 +99,10 @@ class _TrainsetTableState extends State<TrainsetTable> {
     final trainsets = provider.trainsetMeterReadings;
     final colors = Theme.of(context).colorScheme;
 
-    final totalPages = (trainsets.length / itemsPerPage).ceil();
+    final totalPages = (trainsets.length / itemsPerPage).ceil().clamp(
+      1,
+      999999,
+    );
 
     final startIndex = (currentPage - 1) * itemsPerPage;
 
@@ -131,7 +130,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
                   selectedDate: selectedDate,
                   searchController: searchController,
                   onPickDate: pickDate,
-                  onSearch: () {},
+                  onSearch: _loadReadings,
                   onRefresh: () {
                     searchController.clear();
 
@@ -139,6 +138,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
                       selectedDate = DateTime.now();
                       currentPage = 1;
                     });
+                    _loadReadings();
                   },
                 ),
 
@@ -166,36 +166,45 @@ class _TrainsetTableState extends State<TrainsetTable> {
                 // Rows
                 //--------------------------------------------------
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: visibleRows.length,
-                    itemBuilder: (context, index) {
-                      final row = visibleRows[index];
+                  child: provider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : provider.errorMessage != null
+                      ? Center(child: Text(provider.errorMessage!))
+                      : visibleRows.isEmpty
+                      ? const Center(child: Text('No meter readings found.'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: visibleRows.length,
+                          itemBuilder: (context, index) {
+                            final row = visibleRows[index];
 
-                      return TrainsetRow(
-                        serialNo: startIndex + index + 1,
-                        trainset: row.assetNo,
-                        location: row.locationCode,
-                        previousDay: row.previousDate,
-                        previousStatus: row.previousDateReading,
-                        currentStatus: row.todayReading,
-                        onEdit: () async {
-                          await showModalBottomSheet<String>(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (_) {
-                              return MeterBottomSheet(
-                                trainset: row.assetNo,
-                                location: row.locationCode,
-                                date: selectedDate.toString().split(" ").first,
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
+                            return TrainsetRow(
+                              serialNo: startIndex + index + 1,
+                              trainset: row.assetNo,
+                              location: row.locationCode,
+                              previousDay: row.previousDate,
+                              previousStatus: row.previousDateReading,
+                              currentStatus: row.todayReading,
+                              onEdit: () async {
+                                await showModalBottomSheet<String>(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) {
+                                    return MeterBottomSheet(
+                                      trainset: row.assetNo,
+                                      location: row.locationCode,
+                                      date: selectedDate
+                                          .toString()
+                                          .split(" ")
+                                          .first,
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
                 ),
 
                 //--------------------------------------------------

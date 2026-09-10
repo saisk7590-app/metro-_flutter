@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 import '../models/auth/login_model.dart';
 import '../repositories/login_repository.dart';
 import '../utils/password_encryption.dart';
+import '../utils/token_diagnostics.dart';
 
 class LoginProvider extends ChangeNotifier {
   final LoginRepository _repository;
 
-  LoginProvider({
-    LoginRepository? repository,
-  }) : _repository = repository ?? LoginRepository();
+  LoginProvider({LoginRepository? repository})
+    : _repository = repository ?? LoginRepository();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -33,8 +33,7 @@ class LoginProvider extends ChangeNotifier {
 
     try {
       // Encrypt password exactly like the existing AMS application
-      final encryptedPassword =
-          PasswordEncryption.encryptPassword(password);
+      final encryptedPassword = PasswordEncryption.encryptPassword(password);
 
       final result = await _repository.login(
         userName: userName,
@@ -42,9 +41,16 @@ class LoginProvider extends ChangeNotifier {
         timeStamp: timeStamp,
       );
 
+      logTokenDiagnostics('before LoginProvider storage', result.token);
       _loginData = result;
 
       _isLoading = false;
+
+      if (result.loginResult != 1) {
+        _errorMessage = result.loginMessage.isNotEmpty
+            ? result.loginMessage
+            : 'The server rejected the login credentials.';
+      }
 
       notifyListeners();
 
