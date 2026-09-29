@@ -7,6 +7,7 @@ class DateSearchBar extends StatelessWidget {
   final VoidCallback onPickDate;
   final VoidCallback onSearch;
   final VoidCallback onRefresh;
+  final ValueChanged<String> onSearchChanged;
 
   const DateSearchBar({
     super.key,
@@ -15,6 +16,7 @@ class DateSearchBar extends StatelessWidget {
     required this.onPickDate,
     required this.onSearch,
     required this.onRefresh,
+    required this.onSearchChanged,
   });
 
   @override
@@ -71,6 +73,7 @@ class DateSearchBar extends StatelessWidget {
           //------------------------------------
           TextField(
             controller: searchController,
+            onChanged: onSearchChanged,
             decoration: const InputDecoration(
               hintText: "Search Trainset...",
               prefixIcon: Icon(Icons.search),

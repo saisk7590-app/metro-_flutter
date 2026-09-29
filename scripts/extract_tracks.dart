@@ -38,9 +38,7 @@ Future<void> extractTracks(
   final content = await file.readAsString();
 
   // Note: Some attributes might have single or double quotes, and order might vary.
-  // We'll search for <path or <rect and try to find the fill color.
-  final pathRegex = RegExp(r'<(path|rect)[^>]*fill="([^"]+)"[^>]*>');
-  // Sometimes fill is before d, sometimes after. Let's find any tag with fill="color"
+  // We'll search any tag with a fill color and use that to map the section.
   final allTags = RegExp(r'<[^>]+fill="([^"]+)"[^>]*>').allMatches(content);
 
   final Map<String, int> counts = {};

@@ -62,6 +62,7 @@ class _MeterDetailsState extends State<MeterDetails> {
     final errorText = MeterValidation.readingError(
       previousReading: widget.meter.previousReading,
       currentReading: widget.meter.currentReading,
+      isReset: widget.meter.reset,
     );
 
     return Column(

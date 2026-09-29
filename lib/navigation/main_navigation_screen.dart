@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../screens/ams/dashboard_screen.dart';
-import '../screens/ams/ams_update_screen.dart';
-import '../screens/ams/history_screen.dart';
+import '../screens/maintenance-bay/dashboard_screen.dart';
+import '../screens/maintenance-bay/ams_update_screen.dart';
+import '../screens/maintenance-bay/history_screen.dart';
 import '../utils/scaffold_keys.dart';
 import 'app_sidebar.dart';
 

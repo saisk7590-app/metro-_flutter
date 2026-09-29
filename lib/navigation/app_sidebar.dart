@@ -4,6 +4,8 @@ import '../screens/auth/login_screen.dart';
 import '../widgets/sidebar/sidebar_header.dart';
 import '../widgets/sidebar/sidebar_module_tile.dart';
 import '../widgets/sidebar/sidebar_logout.dart';
+import 'package:provider/provider.dart';
+import '../providers/login_provider.dart';
 
 import '../data/sidebar_modules.dart';
 
@@ -99,6 +101,8 @@ class AppSidebar extends StatelessWidget {
                 if (!context.mounted) return;
 
                 if (logout == true) {
+                  await context.read<LoginProvider>().logout();
+                  if (!context.mounted) return;
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
                     (route) => false,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropdown extends StatefulWidget {
@@ -50,13 +51,10 @@ class _CustomDropdownState extends State<CustomDropdown> {
       }
     }
 
-    // Reset search when options change
-    if (widget.options != oldWidget.options) {
-      search = '';
-      isOpen = false;
-
-      if (!widget.options.contains(widget.selectedValue)) {
-        _controller.clear();
+    // Reset search only when options actually differ in contents
+    if (!listEquals(widget.options, oldWidget.options)) {
+      if (search.isNotEmpty) {
+        search = '';
       }
     }
   }

@@ -8,6 +8,10 @@ class MaintenanceBayRepository {
     return api.getMaintenanceBay(depotId);
   }
 
+  Future<Map<String, dynamic>> getMaintenanceBayById(int mbId) {
+    return api.getMaintenanceBayById(mbId);
+  }
+
   Future<Map<String, dynamic>> saveMaintenanceBay({
     required int mbId,
     required int mbDepot,
@@ -18,6 +22,8 @@ class MaintenanceBayRepository {
     required String mbInward,
     required String mbOutward,
     required String mbRemark,
+    bool isOutward = false,
+    int? userId,
   }) {
     return api.saveMaintenanceBay(
       mbId: mbId,
@@ -29,6 +35,8 @@ class MaintenanceBayRepository {
       mbInward: mbInward,
       mbOutward: mbOutward,
       mbRemark: mbRemark,
+      isOutward: isOutward,
+      userId: userId,
     );
   }
 }

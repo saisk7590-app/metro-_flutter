@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../constants/data.dart';
+import '../../models/maintenance_bay_model.dart';
+import '../../providers/login_provider.dart';
 import '../../providers/maintenance_bay_provider.dart';
 import '../../providers/maintenance_purpose_provider.dart';
 import '../../providers/status_provider.dart';
@@ -28,6 +30,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
   String purpose = '';
   String inwardTime = '';
   String outwardTime = '';
+  bool isOutward = false;
 
   int selectedMbId = 0;
   int selectedSlotId = 0;
@@ -46,9 +49,26 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
+      final loginData = context.read<LoginProvider>().loginData;
+      final roleId = context.read<LoginProvider>().selectedRoleId ??
+          loginData?.roleIds.split(',').first.trim() ??
+          '1';
+
       context.read<StatusProvider>().fetchStatuses();
       context.read<MaintenancePurposeProvider>().fetchMaintenancePurposes();
-      context.read<TrainProvider>().fetchTrainSets();
+      context.read<TrainProvider>().fetchTrainSets(
+            token: loginData?.token,
+            userSession: loginData?.encodedUserSession,
+            roleId: roleId,
+          );
+
+      if (depot.isEmpty && AppData.depots.isNotEmpty) {
+        depot = AppData.depots.first;
+        final depotId = depotIds[depot];
+        if (depotId != null) {
+          context.read<MaintenanceBayProvider>().fetchMaintenanceBay(depotId);
+        }
+      }
     });
   }
 
@@ -104,11 +124,78 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
         "${time.minute.toString().padLeft(2, '0')}";
   }
 
-  String formatApiDate(String value) {
-    final parts = value.split(' ');
-    final dateParts = parts[0].split('-');
+  String formatDisplayDate(String value) {
+    if (value.trim().isEmpty) return '';
+    try {
+      final dt = DateTime.parse(value);
+      return "${dt.day.toString().padLeft(2, '0')}-"
+          "${dt.month.toString().padLeft(2, '0')}-"
+          "${dt.year} "
+          "${dt.hour.toString().padLeft(2, '0')}:"
+          "${dt.minute.toString().padLeft(2, '0')}";
+    } catch (_) {
+      return value;
+    }
+  }
 
-    return '${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${parts[1]}:00';
+  String formatApiDate(String value) {
+    if (value.trim().isEmpty) {
+      final now = DateTime.now();
+      return "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}T${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:00";
+    }
+    if (value.contains('T')) {
+      if (value.length == 16) return '$value:00';
+      return value;
+    }
+    final parts = value.trim().split(' ');
+    if (parts.length >= 2) {
+      final dateParts = parts[0].split('-');
+      if (dateParts.length >= 3) {
+        final timePart = parts[1].length == 5 ? '${parts[1]}:00' : parts[1];
+        if (dateParts[0].length <= 2 && dateParts[2].length == 4) {
+          return '${dateParts[2]}-${dateParts[1].padLeft(2, '0')}-${dateParts[0].padLeft(2, '0')}T$timePart';
+        }
+        if (dateParts[0].length == 4) {
+          return '${dateParts[0]}-${dateParts[1].padLeft(2, '0')}-${dateParts[2].padLeft(2, '0')}T$timePart';
+        }
+      }
+    }
+    try {
+      final dt = DateTime.parse(value);
+      return "${dt.year.toString().padLeft(4, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}T${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:00";
+    } catch (_) {
+      final now = DateTime.now();
+      return "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}T${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:00";
+    }
+  }
+
+  Future<void> _fetchDetailedBay(int mbId) async {
+    final bayProvider = context.read<MaintenanceBayProvider>();
+    final detailed = await bayProvider.getMaintenanceBayById(mbId);
+    if (!mounted || detailed == null) return;
+
+    setState(() {
+      if (detailed.id > 0) selectedMbId = detailed.id;
+      if (detailed.slot > 0) selectedSlotId = detailed.slot;
+
+      if (detailed.trainSetId > 0 || detailed.trainSetName.isNotEmpty || detailed.isAllocated) {
+        trainNo = detailed.trainSetName.isNotEmpty
+            ? detailed.trainSetName
+            : (detailed.trainSetId > 0 ? 'TS-${detailed.trainSetId}' : '');
+        selectedTrainId = detailed.trainSetId;
+
+        if (detailed.statusName.isNotEmpty) status = detailed.statusName;
+        if (detailed.statusId > 0) selectedStatusId = detailed.statusId;
+
+        if (detailed.purposeName.isNotEmpty) purpose = detailed.purposeName;
+        if (detailed.purposeId > 0) selectedPurposeId = detailed.purposeId;
+
+        if (detailed.inward.isNotEmpty) inwardTime = formatDisplayDate(detailed.inward);
+        if (detailed.outward.isNotEmpty) outwardTime = formatDisplayDate(detailed.outward);
+        isOutward = detailed.isOutward;
+        if (detailed.remark.isNotEmpty) remarksController.text = detailed.remark;
+      }
+    });
   }
 
   @override
@@ -125,8 +212,8 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
       child: Column(
         children: [
           const CustomHeader(
-            title: "Bay Layout Upadate",
-            subtitle: "Update Train Status",
+            title: "Bay Layout Update",
+            subtitle: "Update Train Allocation",
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -165,6 +252,18 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                 setState(() {
                                   depot = value;
                                   track = '';
+                                  trainNo = '';
+                                  status = '';
+                                  purpose = '';
+                                  inwardTime = '';
+                                  outwardTime = '';
+                                  isOutward = false;
+                                  selectedMbId = 0;
+                                  selectedSlotId = 0;
+                                  selectedTrainId = null;
+                                  selectedStatusId = null;
+                                  selectedPurposeId = null;
+                                  remarksController.clear();
                                 });
 
                                 final depotId = depotIds[value];
@@ -178,24 +277,67 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                             ),
 
                             //----------------------------------
-                            // Track
+                            // Bay
                             //----------------------------------
                             CustomDropdown(
-                              label: 'Track',
+                              label: 'Bay',
                               selectedValue: track,
                               keyboardEnabled: true,
                               options: bayProvider.maintenanceBays
                                   .map((e) => e.slotName)
                                   .toList(),
                               onChanged: (value) {
-                                final selectedBay = bayProvider.maintenanceBays
-                                    .firstWhere((e) => e.slotName == value);
+                                final bay = bayProvider.maintenanceBays.firstWhere(
+                                  (e) => e.slotName == value,
+                                  orElse: () => MaintenanceBayModel(
+                                    id: 0,
+                                    slot: 0,
+                                    slotName: value,
+                                    slotType: '',
+                                  ),
+                                );
 
                                 setState(() {
                                   track = value;
-                                  selectedMbId = selectedBay.id;
-                                  selectedSlotId = selectedBay.slot;
+                                  selectedMbId = bay.id;
+                                  selectedSlotId = bay.slot > 0 ? bay.slot : bay.id;
+
+                                  if (bay.trainSetId > 0 ||
+                                      bay.trainSetName.isNotEmpty ||
+                                      bay.isAllocated) {
+                                    trainNo = bay.trainSetName.isNotEmpty
+                                        ? bay.trainSetName
+                                        : (bay.trainSetId > 0
+                                            ? 'TS-${bay.trainSetId}'
+                                            : '');
+                                    selectedTrainId = bay.trainSetId;
+                                    status = bay.statusName;
+                                    selectedStatusId = bay.statusId;
+                                    purpose = bay.purposeName;
+                                    selectedPurposeId = bay.purposeId;
+                                    inwardTime = formatDisplayDate(bay.inward);
+                                    outwardTime = formatDisplayDate(bay.outward);
+                                    isOutward = bay.isOutward;
+                                    remarksController.text = bay.remark;
+                                  } else {
+                                    trainNo = '';
+                                    selectedTrainId = null;
+                                    status = '';
+                                    selectedStatusId = null;
+                                    purpose = '';
+                                    selectedPurposeId = null;
+                                    final now = DateTime.now();
+                                    inwardTime =
+                                        "${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+                                    outwardTime = '';
+                                    isOutward = false;
+                                    remarksController.clear();
+                                  }
                                 });
+
+                                if (bay.id > 0) {
+                                  _fetchDetailedBay(bay.id);
+                                }
                               },
                             ),
 
@@ -333,6 +475,21 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                               ],
                             ),
 
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: isOutward,
+                                  onChanged: (value) {
+                                    setState(() => isOutward = value ?? false);
+                                  },
+                                ),
+                                const Text(
+                                  'Outward',
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+
                             const SizedBox(height: 16),
 
                             //----------------------------------
@@ -356,13 +513,26 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                               onPressed: () async {
                                 final depotId = depotIds[depot];
 
+                                int effectiveMbId = selectedMbId;
+                                int effectiveSlotId = selectedSlotId;
+
+                                if (effectiveSlotId == 0 && effectiveMbId > 0) {
+                                  effectiveSlotId = effectiveMbId;
+                                }
+                                if (effectiveMbId == 0 && effectiveSlotId > 0) {
+                                  effectiveMbId = effectiveSlotId;
+                                }
+
                                 if (depotId == null ||
                                     selectedTrainId == null ||
                                     selectedStatusId == null ||
-                                    selectedPurposeId == null) {
+                                    selectedPurposeId == null ||
+                                    effectiveSlotId == 0) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text("Missing required fields"),
+                                      content: Text(
+                                        "Missing required fields. Please select Depot, Bay, Train Set, Status, and Purpose.",
+                                      ),
                                     ),
                                   );
                                   return;
@@ -370,34 +540,31 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
 
                                 final bayProvider = context
                                     .read<MaintenanceBayProvider>();
+                                final loginProvider = context
+                                    .read<LoginProvider>();
+                                final userId = loginProvider.loginData?.id ?? 1;
 
                                 final success = await bayProvider
                                     .saveMaintenanceBay(
-                                      mbId: selectedMbId,
+                                      mbId: effectiveMbId,
                                       mbDepot: depotId,
-                                      mbSlot: selectedSlotId,
+                                      mbSlot: effectiveSlotId,
                                       mbTrainSet: selectedTrainId!,
                                       mbStatus: selectedStatusId!,
                                       mbPurpose: selectedPurposeId!,
                                       mbInward: formatApiDate(inwardTime),
-                                      mbOutward: formatApiDate(outwardTime),
+                                      mbOutward: outwardTime.trim().isEmpty
+                                          ? ''
+                                          : formatApiDate(outwardTime),
                                       mbRemark: remarksController.text,
+                                      isOutward: isOutward,
+                                      userId: userId,
                                     );
 
                                 if (!mounted) return;
 
                                 if (success) {
-                                  debugPrint("===== SAVED DATA =====");
-                                  debugPrint("Depot : $depot");
-                                  debugPrint("Track : $track");
-                                  debugPrint("Train : $trainNo");
-                                  debugPrint("Status : $status");
-                                  debugPrint("Purpose : $purpose");
-                                  debugPrint("Inward : $inwardTime");
-                                  debugPrint("Outward : $outwardTime");
-                                  debugPrint(
-                                    "Remarks : ${remarksController.text}",
-                                  );
+                                  bayProvider.fetchMaintenanceBay(depotId);
 
                                   setState(() {
                                     track = "";
@@ -406,6 +573,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                     purpose = "";
                                     inwardTime = "";
                                     outwardTime = "";
+                                    isOutward = false;
 
                                     selectedMbId = 0;
                                     selectedSlotId = 0;
@@ -415,10 +583,9 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
 
                                     remarksController.clear();
                                   });
-                                  if (!mounted) return;
 
                                   ScaffoldMessenger.of(
-                                    this.context,
+                                    context,
                                   ).showSnackBar(
                                     const SnackBar(
                                       content: Text("Saved Successfully"),
@@ -426,7 +593,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                   );
                                 } else {
                                   ScaffoldMessenger.of(
-                                    this.context,
+                                    context,
                                   ).showSnackBar(
                                     const SnackBar(
                                       content: Text("Save Failed"),

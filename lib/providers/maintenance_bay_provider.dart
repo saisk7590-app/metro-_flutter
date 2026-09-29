@@ -27,6 +27,19 @@ class MaintenanceBayProvider extends ChangeNotifier {
     }
   }
 
+  Future<MaintenanceBayModel?> getMaintenanceBayById(int mbId) async {
+    try {
+      final data = await repository.getMaintenanceBayById(mbId);
+      final raw = data['maintenanceBay'] ?? data['data'] ?? data;
+      if (raw is Map<String, dynamic>) {
+        return MaintenanceBayModel.fromJson(raw);
+      }
+    } catch (e) {
+      debugPrint('Error fetching maintenance bay by ID: $e');
+    }
+    return null;
+  }
+
   Future<bool> saveMaintenanceBay({
     required int mbId,
     required int mbDepot,
@@ -37,6 +50,8 @@ class MaintenanceBayProvider extends ChangeNotifier {
     required String mbInward,
     required String mbOutward,
     required String mbRemark,
+    bool isOutward = false,
+    int? userId,
   }) async {
     try {
       isLoading = true;
@@ -52,15 +67,94 @@ class MaintenanceBayProvider extends ChangeNotifier {
         mbInward: mbInward,
         mbOutward: mbOutward,
         mbRemark: mbRemark,
+        isOutward: isOutward,
+        userId: userId,
       );
 
-      return response['status'] == 1;
+      final status = response['status'] ?? response['statusCode'] ?? response['success'];
+      return status == 1 || status == '1' || status == 200 || status == true;
     } catch (e) {
       error = e.toString();
+      debugPrint('saveMaintenanceBay error: $e');
       return false;
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
+
+  /// Finds the matching MaintenanceBayModel for a given track/marker ID (e.g. UPLIBL1BE, MPSBL1BE, UPLTT1)
+  MaintenanceBayModel? findBayForMarker(String markerId) {
+    if (maintenanceBays.isEmpty) return null;
+    final mUpper = markerId.toUpperCase();
+    final mClean = mUpper.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+
+    // 1. Exact match on slotName or buttonId
+    for (final bay in maintenanceBays) {
+      final sUpper = bay.slotName.toUpperCase();
+      final sClean = sUpper.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+      if (sUpper == mUpper || (sClean.isNotEmpty && sClean == mClean)) {
+        return bay;
+      }
+    }
+
+    // 2. Suffix or prefix match
+    for (final bay in maintenanceBays) {
+      final sClean = bay.slotName.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+      if (sClean.isNotEmpty && (mClean.endsWith(sClean) || sClean.endsWith(mClean))) {
+        return bay;
+      }
+    }
+
+    // 3. Fallback for unique single-slot lines (TT, WL, WP)
+    if (mUpper.contains('TT')) {
+      for (final bay in maintenanceBays) {
+        if (bay.slotName.toUpperCase().contains('TT')) return bay;
+      }
+    }
+    if (mUpper.contains('WL')) {
+      for (final bay in maintenanceBays) {
+        if (bay.slotName.toUpperCase().contains('WL')) return bay;
+      }
+    }
+    if (mUpper.contains('WP')) {
+      for (final bay in maintenanceBays) {
+        if (bay.slotName.toUpperCase().contains('WP')) return bay;
+      }
+    }
+
+    return null;
+  }
+
+  /// Calculates dynamically the occupied train count for a given section
+  int getOccupiedCount(String depot, String section) {
+    if (maintenanceBays.isEmpty) return 0;
+    int count = 0;
+    final secUpper = section.toUpperCase();
+
+    for (final bay in maintenanceBays) {
+      if (bay.isAllocated) {
+        final slotUpper = bay.slotName.toUpperCase();
+        bool matches = false;
+        if (secUpper == 'SBL' && slotUpper.contains('SBL')) {
+          matches = true;
+        } else if (secUpper == 'IBL' && slotUpper.contains('IBL')) {
+          matches = true;
+        } else if (secUpper == 'MAIN' && slotUpper.contains('MAIN')) {
+          matches = true;
+        } else if (secUpper == 'PW' && slotUpper.contains('PW')) {
+          matches = true;
+        } else if (secUpper == 'WP' && slotUpper.contains('WP')) {
+          matches = true;
+        } else if (secUpper == 'WL' && slotUpper.contains('WL')) {
+          matches = true;
+        } else if (secUpper == 'TT' && slotUpper.contains('TT')) {
+          matches = true;
+        }
+        if (matches) count++;
+      }
+    }
+    return count;
+  }
 }
+

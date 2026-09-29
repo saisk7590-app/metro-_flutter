@@ -7,7 +7,7 @@ class TrainsetMeterReadingRepository {
   TrainsetMeterReadingRepository({ApiService? apiService})
     : _apiService = apiService ?? ApiService();
 
-  Future<List<TrainsetMeterReadingModel>> getTrainsetMeterReadings({
+  Future<TrainsetMeterReadingPage> getTrainsetMeterReadings({
     required String date,
     required int pageNo,
     required int pageSize,

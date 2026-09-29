@@ -15,7 +15,7 @@ class MeterDashboardScreen extends StatelessWidget {
       child: Column(
         children: const [
           CustomHeader(
-            title: "Trainset Meter Measurements",
+            title: "Meter Measurements",
             subtitle: "Daily Meter Reading Monitoring",
           ),
 

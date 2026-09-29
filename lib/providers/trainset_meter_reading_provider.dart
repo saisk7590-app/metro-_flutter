@@ -12,11 +12,15 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   List<TrainsetMeterReadingModel> _trainsetMeterReadings = [];
+  int _totalRows = 0;
+  int _pageNo = 1;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   List<TrainsetMeterReadingModel> get trainsetMeterReadings =>
       _trainsetMeterReadings;
+  int get totalRows => _totalRows;
+  int get pageNo => _pageNo;
 
   Future<void> getTrainsetMeterReadings({
     required String date,
@@ -29,7 +33,6 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _errorMessage = null;
-
     notifyListeners();
 
     try {
@@ -42,18 +45,41 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
         userSession: userSession,
         roleId: roleId,
       );
+      _trainsetMeterReadings = result.items;
 
-      _trainsetMeterReadings = result;
+      // The API returns totalRows on the first page only. Preserve that
+      // value while loading later pages.
+      if (pageNo == 1 || result.totalRows > 0) {
+        _totalRows = result.totalRows;
+      }
 
+      _pageNo = result.pageNo > 0 ? result.pageNo : pageNo;
       _isLoading = false;
-
       notifyListeners();
     } catch (e) {
+      debugPrint('Error fetching meter readings: $e');
       _isLoading = false;
       _errorMessage = e.toString();
-
       notifyListeners();
     }
+  }
+
+  Future<List<TrainsetMeterReadingModel>> getAllForSearch({
+    required String date,
+    required String token,
+    required String userSession,
+    required String roleId,
+  }) async {
+    final result = await _repository.getTrainsetMeterReadings(
+      date: date,
+      pageNo: 1,
+      pageSize: 1000,
+      pagination: 1,
+      token: token,
+      userSession: userSession,
+      roleId: roleId,
+    );
+    return result.items;
   }
 
   void clearError() {
@@ -63,6 +89,8 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
 
   void clearData() {
     _trainsetMeterReadings = [];
+    _totalRows = 0;
+    _pageNo = 1;
     notifyListeners();
   }
 }

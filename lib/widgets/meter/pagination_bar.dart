@@ -28,11 +28,10 @@ class PaginationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final start = ((currentPage - 1) * itemsPerPage) + 1;
-
-    final end = (start + itemsPerPage - 1) > totalItems
-        ? totalItems
-        : (start + itemsPerPage - 1);
+    final start = totalItems == 0 ? 0 : ((currentPage - 1) * itemsPerPage) + 1;
+    final end = totalItems == 0
+        ? 0
+        : (start + itemsPerPage - 1).clamp(start, totalItems);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

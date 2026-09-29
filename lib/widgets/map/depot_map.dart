@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
+
 import '../../constants/map_data.dart';
-import '../../providers/active_trains_provider.dart';
-import '../../widgets/popups/assign_train_popup.dart';
-import 'train_details_popup.dart';
+import '../../constants/website_bay_markers.dart';
+import '../../providers/maintenance_bay_provider.dart';
+import '../../widgets/popups/ams_update_popup.dart';
 
 class DepotMap extends StatefulWidget {
   final String depot;
   final String selectedSection;
+  final VoidCallback? onResetZoom;
 
   const DepotMap({
     super.key,
     required this.depot,
     required this.selectedSection,
+    this.onResetZoom,
   });
 
   @override
@@ -28,12 +31,11 @@ class _DepotMapState extends State<DepotMap> {
   final GlobalKey _viewerKey = GlobalKey();
 
   Offset? _tapPosition;
-
   double _tapX = 0;
   double _tapY = 0;
 
   /// Turn OFF after collecting coordinates.
-  bool developerMode = true;
+  bool developerMode = false;
 
   @override
   void initState() {
@@ -44,7 +46,7 @@ class _DepotMapState extends State<DepotMap> {
 
       if (widget.selectedSection.isNotEmpty) {
         Future.delayed(const Duration(milliseconds: 200), () {
-          if (mounted) {
+          if (mounted && widget.selectedSection.isNotEmpty) {
             _zoomToSection();
           }
         });
@@ -56,8 +58,47 @@ class _DepotMapState extends State<DepotMap> {
   void didUpdateWidget(covariant DepotMap oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.selectedSection != widget.selectedSection) {
-      _zoomToSection();
+    if (oldWidget.depot != widget.depot) {
+      _resetZoom();
+    } else if (oldWidget.selectedSection != widget.selectedSection) {
+      if (widget.selectedSection.isEmpty) {
+        _resetZoom();
+      } else {
+        _zoomToSection();
+      }
+    }
+  }
+
+  double _depotAspect() {
+    switch (widget.depot) {
+      case 'Miyapur':
+        return 4076.0 / 2380.0;
+      case 'Uppal':
+        return 2644.0 / 2112.0;
+      default:
+        return 4076.0 / 2380.0;
+    }
+  }
+
+  double _depotWidth() {
+    switch (widget.depot) {
+      case 'Miyapur':
+        return 4076.0;
+      case 'Uppal':
+        return 2644.0;
+      default:
+        return 4076.0;
+    }
+  }
+
+  double _depotHeight() {
+    switch (widget.depot) {
+      case 'Miyapur':
+        return 2380.0;
+      case 'Uppal':
+        return 2112.0;
+      default:
+        return 2380.0;
     }
   }
 
@@ -70,8 +111,6 @@ class _DepotMapState extends State<DepotMap> {
       final mapBox = _mapKey.currentContext?.findRenderObject() as RenderBox?;
 
       if (viewerBox == null || mapBox == null) return;
-      debugPrint("Viewer Size: ${viewerBox.size}");
-      debugPrint("Map Size: ${mapBox.size}");
 
       final viewport = viewerBox.size;
       final mapSize = mapBox.size;
@@ -93,7 +132,6 @@ class _DepotMapState extends State<DepotMap> {
   void _zoomToSection() {
     final center =
         MapData.sectionCenters[widget.depot]?[widget.selectedSection];
-
     final zoom = MapData.zoomLevels[widget.depot]?[widget.selectedSection];
 
     if (center == null || zoom == null) return;
@@ -103,7 +141,6 @@ class _DepotMapState extends State<DepotMap> {
 
       final viewerBox =
           _viewerKey.currentContext?.findRenderObject() as RenderBox?;
-
       final mapBox = _mapKey.currentContext?.findRenderObject() as RenderBox?;
 
       if (viewerBox == null || mapBox == null) return;
@@ -134,9 +171,17 @@ class _DepotMapState extends State<DepotMap> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    if (widget.depot.isEmpty) {
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
+    final containerHeight = isMobile
+        ? math.max(340.0, screenHeight * 0.48)
+        : math.max(460.0, screenHeight * 0.62);
+
+    if (widget.depot.isEmpty || widget.depot == 'Select Depot') {
       return Container(
-        height: 450,
+        height: isMobile ? 260 : 400,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade400),
@@ -149,8 +194,11 @@ class _DepotMapState extends State<DepotMap> {
       );
     }
 
+    final nativeWidth = _depotWidth();
+    final nativeHeight = _depotHeight();
+
     return Container(
-      height: MediaQuery.of(context).size.height * .65,
+      height: containerHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade400),
@@ -159,10 +207,10 @@ class _DepotMapState extends State<DepotMap> {
       child: Column(
         children: [
           //---------------------------------------------------
-          // Header
+          // Header (NxAMS Style)
           //---------------------------------------------------
           Container(
-            height: 50,
+            height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEAF4FF),
@@ -174,23 +222,36 @@ class _DepotMapState extends State<DepotMap> {
             ),
             child: Row(
               children: [
-                Text(
-                  "${widget.depot} Layout",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                Icon(
+                  Icons.map,
+                  color: isDark ? Colors.blue.shade300 : const Color(0xFF1E3A8A),
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "${widget.depot.toUpperCase()} – Depot Layout",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile ? 13 : 15,
+                      color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-
-                const Spacer(),
-
                 TextButton.icon(
-                  onPressed: _resetZoom,
-                  icon: Icon(Icons.refresh, color: theme.primaryColor),
+                  onPressed: () {
+                    _resetZoom();
+                    widget.onResetZoom?.call();
+                  },
+                  icon: Icon(Icons.refresh, color: theme.primaryColor, size: 16),
                   label: Text(
                     "Reset",
-                    style: TextStyle(color: theme.primaryColor),
+                    style: TextStyle(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
@@ -198,7 +259,7 @@ class _DepotMapState extends State<DepotMap> {
           ),
 
           //---------------------------------------------------
-          // Map
+          // Map Canvas
           //---------------------------------------------------
           Expanded(
             child: ClipRRect(
@@ -206,114 +267,103 @@ class _DepotMapState extends State<DepotMap> {
                 bottomLeft: Radius.circular(12),
                 bottomRight: Radius.circular(12),
               ),
-              child: InteractiveViewer(
-                key: _viewerKey,
-                transformationController: _controller,
+              child: LayoutBuilder(
+                builder: (context, viewportConstraints) {
+                  return InteractiveViewer(
+                    key: _viewerKey,
+                    transformationController: _controller,
+                    minScale: 0.01,
+                    maxScale: 6.0,
+                    scaleEnabled: true,
+                    panEnabled: true,
+                    constrained: false,
+                    boundaryMargin: const EdgeInsets.all(2500),
+                    clipBehavior: Clip.none,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTapUp: (details) {
+                        if (!developerMode) return;
 
-                // allow your code (_zoomToSection) to control zoom
-                minScale: .2,
-                maxScale: 8,
-                // allow user pinch-to-zoom gestures
-                scaleEnabled: true,
-                // user can still drag/pan the map
-                panEnabled: true,
-                constrained: false,
-                boundaryMargin: const EdgeInsets.all(1500),
-                clipBehavior: Clip.none,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTapUp: (details) {
-                    if (!developerMode) return;
+                        final box =
+                            _mapKey.currentContext!.findRenderObject() as RenderBox;
+                        final local = box.globalToLocal(details.globalPosition);
+                        final x = local.dx / box.size.width;
+                        final y = local.dy / box.size.height;
 
-                    final box =
-                        _mapKey.currentContext!.findRenderObject() as RenderBox;
+                        setState(() {
+                          _tapPosition = local;
+                          _tapX = x;
+                          _tapY = y;
+                        });
 
-                    final local = box.globalToLocal(details.globalPosition);
-
-                    final x = local.dx / box.size.width;
-                    final y = local.dy / box.size.height;
-
-                    setState(() {
-                      _tapPosition = local;
-                      _tapX = x;
-                      _tapY = y;
-                    });
-
-                    debugPrint("");
-                    debugPrint("========== ${widget.depot} ==========");
-                    debugPrint(
-                      "'${widget.selectedSection}': OffsetData("
-                      "${x.toStringAsFixed(3)}, "
-                      "${y.toStringAsFixed(3)}),",
-                    );
-                    debugPrint("====================================");
-                    debugPrint("");
-                  },
-                  child: Stack(
-                    children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final availableWidth = constraints.maxWidth.isFinite
-                              ? constraints.maxWidth
-                              : MediaQuery.of(context).size.width;
-                          const assetAspect = 1224.0 / 792.0;
-                          final calculatedHeight = availableWidth / assetAspect;
-
-                          final scaleX = availableWidth / 1224.0;
-                          final scaleY = calculatedHeight / 792.0;
-
-                          return SizedBox(
-                            key: _mapKey,
-                            width: availableWidth,
-                            height: calculatedHeight,
-                            child: Stack(
-                              children: [
+                        debugPrint("");
+                        debugPrint("========== ${widget.depot} ==========");
+                        debugPrint(
+                          "'${widget.selectedSection}': OffsetData("
+                          "${x.toStringAsFixed(3)}, "
+                          "${y.toStringAsFixed(3)}),",
+                        );
+                        debugPrint("====================================");
+                      },
+                      child: SizedBox(
+                        key: _mapKey,
+                        width: nativeWidth,
+                        height: nativeHeight,
+                        child: Stack(
+                          children: [
+                            // 1. Depot CAD Background Layout (extracted standalone PNG)
+                            Positioned.fill(
+                              child: Image.asset(
                                 widget.depot == "Miyapur"
-                                    ? SvgPicture.asset(
-                                        "assets/maps/miyapur_layout.svg",
-                                        fit: BoxFit.contain,
-                                      )
-                                    : SvgPicture.asset(
-                                        "assets/maps/upl_layout_new.svg",
-                                        fit: BoxFit.contain,
-                                      ),
-
-                                //-------------------------------------------------
-                                // Tracks (scaled)
-                                //-------------------------------------------------
-                                ..._buildTrackMarkers(scaleX, scaleY),
-
-                                //-------------------------------------------------
-                                // Developer Marker
-                                //-------------------------------------------------
-                                if (developerMode && _tapPosition != null)
-                                  Positioned(
-                                    left: _tapPosition!.dx - 6,
-                                    top: _tapPosition!.dy - 6,
-                                    child: Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                                    ? "assets/maps/myp_depot_bg.png"
+                                    : "assets/maps/upl_depot_bg.png",
+                                fit: BoxFit.fill,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const SizedBox.shrink(),
+                              ),
                             ),
-                          );
-                        },
+
+                            // 2. Depot Tracks and Labels (SVG)
+                            Positioned.fill(
+                              child: widget.depot == "Miyapur"
+                                  ? SvgPicture.asset(
+                                      "assets/maps/MYP DEPO 0.svg",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : SvgPicture.asset(
+                                      "assets/maps/UPL DEPO 0.svg",
+                                      fit: BoxFit.fill,
+                                    ),
+                            ),
+
+                            // 3. Interactive Tracks with Allocation Overlays (NxAMS style)
+                            ..._buildTrackMarkers(context, 1.0, 1.0),
+
+                            // 4. Developer Marker
+                            if (developerMode && _tapPosition != null)
+                              Positioned(
+                                left: _tapPosition!.dx - 6,
+                                top: _tapPosition!.dy - 6,
+                                child: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
 
-          //---------------------------------------------------
           // Developer Panel
-          //---------------------------------------------------
           if (developerMode)
             Container(
               width: double.infinity,
@@ -333,73 +383,140 @@ class _DepotMapState extends State<DepotMap> {
     );
   }
 
-  List<Widget> _buildTrackMarkers(double scaleX, double scaleY) {
-    if (widget.depot.isEmpty) return [];
+  List<Widget> _buildTrackMarkers(
+    BuildContext context,
+    double scaleX,
+    double scaleY,
+  ) {
+    final bayProvider = context.watch<MaintenanceBayProvider>();
+    final markers = widget.depot == 'Miyapur'
+        ? WebsiteBayMarkers.miyapur
+        : WebsiteBayMarkers.uppal;
 
-    final depotCode = widget.depot == 'Miyapur' ? 'MP' : 'UP';
-    final activeTrainsProvider = Provider.of<ActiveTrainsProvider>(context);
-    List<Widget> markers = [];
+    final widgets = <Widget>[];
 
-    MapData.trackBounds.forEach((trackId, bounds) {
-      if (!trackId.startsWith(depotCode)) return;
+    for (final marker in markers) {
+      final bay = bayProvider.findBayForMarker(marker.id);
+      final isAllocated = bay != null && bay.isAllocated;
 
-      final parts = trackId.substring(2).split('-');
-      if (parts.length < 2) return;
-      final section = parts[0];
-      final trackNumber = parts[1];
+      final trackLeft = marker.x * scaleX;
+      final trackTop = marker.y * scaleY;
+      final trackWidth = marker.width * scaleX;
+      final trackHeight = marker.height * scaleY;
 
-      final assignment = activeTrainsProvider.getTrainAtSlot(trackId);
-
-      markers.add(
-        Positioned(
-          left: bounds.x * scaleX,
-          top: bounds.y * scaleY,
-          width: bounds.w * scaleX,
-          height: bounds.h * scaleY,
-          child: GestureDetector(
-            onTap: () {
-              if (assignment == null) {
-                showDialog(
-                  context: context,
-                  builder: (context) => AssignTrainPopup(
-                    depotName: widget.depot,
-                    sectionName: section,
-                    trackNumber: trackNumber,
-                    trackId: trackId,
-                  ),
-                );
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (context) =>
-                      TrainDetailsPopup(assignment: assignment),
-                );
-              }
-            },
-            child: Tooltip(
-              message: trackId,
+      // 1. If allocated, show green highlight fill (#28A745)
+      if (isAllocated) {
+        widgets.add(
+          Positioned(
+            left: trackLeft,
+            top: trackTop,
+            width: trackWidth,
+            height: trackHeight,
+            child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
-                  color: assignment != null
-                      ? assignment.statusColor.withValues(alpha: 0.6)
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: assignment != null
-                        ? assignment.statusColor
-                        : Colors.transparent,
-                    width: 1,
+                  color: const Color(0xFF28A745).withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        // 2. Train bogie overlay (3 Boghi graphic)
+        final bogieH = trackHeight * 2.2;
+        final bogieY = trackTop - (trackHeight * 1.2) / 2;
+        widgets.add(
+          Positioned(
+            left: trackLeft,
+            top: bogieY,
+            width: trackWidth,
+            height: bogieH,
+            child: IgnorePointer(
+              child: Image.asset(
+                'assets/maps/train_bogie.png',
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        );
+
+        // 3. Centered white badge with bold Trainset Name (NxAMS style)
+        final trainName = bay.trainSetName.isNotEmpty
+            ? bay.trainSetName
+            : (bay.trainSetId > 0 ? 'TS-${bay.trainSetId}' : '');
+        if (trainName.isNotEmpty) {
+          widgets.add(
+            Positioned(
+              left: trackLeft,
+              top: trackTop,
+              width: trackWidth,
+              height: trackHeight,
+              child: IgnorePointer(
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 2,
+                          offset: Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      trainName,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 9,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
                   ),
                 ),
-                child: assignment != null
-                    ? FittedBox(child: Icon(Icons.train, color: Colors.white))
-                    : null,
               ),
+            ),
+          );
+        }
+      }
+
+      // 4. Interactive touch target & informative tooltip
+      widgets.add(
+        Positioned(
+          left: trackLeft,
+          top: trackTop,
+          width: trackWidth,
+          height: trackHeight,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => AMSUpdatePopup(
+                  initialDepot: widget.depot,
+                  initialTrack: marker.id,
+                ),
+              );
+            },
+            child: Tooltip(
+              message: isAllocated
+                  ? '${marker.id}\nTrain: ${bay.trainSetName}\nStatus: ${bay.statusName}\nPurpose: ${bay.purposeName}'
+                  : '${marker.id} (Empty)',
+              child: const SizedBox.expand(),
             ),
           ),
         ),
       );
-    });
+    }
 
-    return markers;
+    return widgets;
   }
 }

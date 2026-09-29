@@ -11,15 +11,24 @@ class TrainProvider extends ChangeNotifier {
   bool isLoading = false;
   String error = '';
 
-  Future<void> fetchTrainSets() async {
+  Future<void> fetchTrainSets({
+    String? token,
+    String? userSession,
+    String? roleId,
+  }) async {
     try {
       isLoading = true;
       error = '';
 
       notifyListeners();
 
-      trainSets = await repository.getTrainSets();
+      trainSets = await repository.getTrainSets(
+        token: token,
+        userSession: userSession,
+        roleId: roleId,
+      );
     } catch (e) {
+      debugPrint('Error fetching trainsets: $e');
       error = e.toString();
     } finally {
       isLoading = false;

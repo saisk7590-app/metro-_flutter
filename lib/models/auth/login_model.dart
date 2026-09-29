@@ -19,10 +19,11 @@ class LoginModel {
   final int resetpwd;
   final String locationName;
   final int isMFARequired;
-  final String? mfaReferenceCode;
+  String? mfaReferenceCode;
   final String captchaId;
   final String captchaImage;
   final String token;
+  final String? rawBody;
 
   LoginModel({
     required this.id,
@@ -47,9 +48,10 @@ class LoginModel {
     required this.captchaId,
     required this.captchaImage,
     required this.token,
+    this.rawBody,
   });
 
-  factory LoginModel.fromJson(Map<String, dynamic> json) {
+  factory LoginModel.fromJson(Map<String, dynamic> json, {String? rawBody}) {
     return LoginModel(
       id: json['id'] ?? 0,
       userName: json['userName'] ?? '',
@@ -73,6 +75,7 @@ class LoginModel {
       captchaId: json['captchaId'] ?? '',
       captchaImage: json['captchaImage'] ?? '',
       token: json['token'] ?? '',
+      rawBody: rawBody,
     );
   }
 
@@ -104,11 +107,21 @@ class LoginModel {
   }
 
   String get encodedUserSession {
+    if (rawBody != null && rawBody!.isNotEmpty) {
+      return base64Encode(utf8.encode(rawBody!));
+    }
     final jsonString = jsonEncode(toJson());
     return base64Encode(utf8.encode(jsonString));
   }
 
   String get bearerToken {
-    return token.split('&gF=').first;
+    var clean = token.replaceFirst(RegExp(r'^Bearer\s+', caseSensitive: false), '').trim();
+    if (clean.contains('k&gF=')) {
+      clean = clean.replaceFirst(RegExp(r'k&gF=(?=.{8}$)'), '');
+    }
+    if (clean.contains('&gF=')) {
+      clean = clean.split('&gF=').first;
+    }
+    return clean;
   }
 }
