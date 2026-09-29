@@ -150,6 +150,7 @@ class BayAllocationTable extends StatelessWidget {
                       builder: (_) => AMSUpdatePopup(
                         initialDepot: depotName,
                         initialTrack: row.slotName,
+                        existingBay: row,
                       ),
                     );
                   },

@@ -39,4 +39,30 @@ class MaintenanceBayRepository {
       userId: userId,
     );
   }
+
+  Future<Map<String, dynamic>> saveMaintenanceBayAllocation({
+    required int mbaMbId,
+    required int mbaDepot,
+    required int mbaSlot,
+    required int mbaTrainSet,
+    required int mbaPurpose,
+    required int mbaStatus,
+    required String mbaAllocatedOn,
+    required String mbaAllocatedBy,
+    required String mbaRemarks,
+    int? userId,
+  }) {
+    return api.saveMaintenanceBayAllocation(
+      mbaMbId: mbaMbId,
+      mbaDepot: mbaDepot,
+      mbaSlot: mbaSlot,
+      mbaTrainSet: mbaTrainSet,
+      mbaPurpose: mbaPurpose,
+      mbaStatus: mbaStatus,
+      mbaAllocatedOn: mbaAllocatedOn,
+      mbaAllocatedBy: mbaAllocatedBy,
+      mbaRemarks: mbaRemarks,
+      userId: userId,
+    );
+  }
 }

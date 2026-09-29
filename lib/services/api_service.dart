@@ -79,7 +79,9 @@ class ApiService {
         if (lower != 'authorization' &&
             lower != 'origin' &&
             lower != 'referer' &&
-            lower != 'hash-check') {
+            lower != 'hash-check' &&
+            lower != 'role-id' &&
+            lower != 'usersession') {
           effectiveHeaders[key] = value;
         }
       });
@@ -728,14 +730,23 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
-      final raw = decoded is Map<String, dynamic>
-          ? (decoded['results'] ??
-                decoded['bays'] ??
-                decoded['data'] ??
-                decoded['list'] ??
-                decoded['items'] ??
-                <dynamic>[])
-          : decoded;
+      dynamic raw = decoded;
+      if (decoded is Map<String, dynamic>) {
+        final inner = decoded['response'] ?? decoded['data'];
+        if (inner is List) {
+          raw = inner;
+        } else if (inner is Map<String, dynamic>) {
+          raw = inner['results'] ?? inner['allocations'] ?? inner['bays'] ?? inner['list'] ?? inner;
+        } else {
+          raw = decoded['results'] ??
+              decoded['allocations'] ??
+              decoded['bays'] ??
+              decoded['data'] ??
+              decoded['list'] ??
+              decoded['items'] ??
+              <dynamic>[];
+        }
+      }
       final list = raw is String ? jsonDecode(raw) : raw;
 
       return (list is List ? list : <dynamic>[])
@@ -757,10 +768,10 @@ class ApiService {
       base: baseUrl,
       body: {
         'Params': [
-          {'key': 'mb_id', 'value': mbId.toString()},
+          {'key': 'mb_id', 'value': mbId.toString(), 'Key': 'mb_id', 'Value': mbId.toString()},
         ],
       },
-      headers: {'Role-id': currentRoleId ?? '1'},
+      headers: {'Role-Id': currentRoleId ?? '1'},
     );
 
     debugPrint('GetMaintenanceBayById Status: ${response.statusCode}');
@@ -769,8 +780,14 @@ class ApiService {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       if (decoded is Map<String, dynamic>) {
+        if (decoded.containsKey('response') && decoded['response'] is Map<String, dynamic>) {
+          return decoded['response'] as Map<String, dynamic>;
+        }
         return decoded;
+      } else if (decoded is List && decoded.isNotEmpty && decoded.first is Map<String, dynamic>) {
+        return decoded.first as Map<String, dynamic>;
       }
+      return {'data': decoded};
     }
 
     throw Exception('Failed to load maintenance bay details: ${response.statusCode}');
@@ -794,35 +811,96 @@ class ApiService {
     int? userId,
   }) async {
     final effectiveUserId = userId ?? 1;
+    final payload = {
+      'MbId': mbId,
+      'MbDepot': mbDepot,
+      'MbSlot': mbSlot,
+      'MbTrainSet': mbTrainSet,
+      'MbStatus': mbStatus,
+      'MbPurpose': mbPurpose,
+      'MbInward': mbInward,
+      'MbOutward': mbOutward.isNotEmpty ? mbOutward : null,
+      'MbRemark': mbRemark,
+      'MbIsAllocated': true,
+      'CreatedBy': effectiveUserId,
+      'UpdatedBy': effectiveUserId,
+      'isOutward': isOutward,
+    };
+
+    debugPrint('SaveMaintenanceBay Payload: ${jsonEncode(payload)}');
+
     final response = await _postJson(
       '/asset-register/save-maintenance-bay',
       base: baseUrl,
-      body: {
-        'MbId': mbId,
-        'MbDepot': mbDepot,
-        'MbSlot': mbSlot,
-        'MbTrainSet': mbTrainSet,
-        'MbStatus': mbStatus,
-        'MbPurpose': mbPurpose,
-        'MbInward': mbInward,
-        'MbOutward': mbOutward.isNotEmpty ? mbOutward : null,
-        'MbRemark': mbRemark,
-        'MbIsAllocated': true,
-        'CreatedBy': effectiveUserId,
-        'UpdatedBy': effectiveUserId,
-        'isOutward': isOutward,
-      },
-      headers: {'Role-id': currentRoleId ?? '1'},
+      body: payload,
+      headers: {'Role-Id': currentRoleId ?? '1'},
     );
 
     debugPrint('Save API Status: ${response.statusCode}');
     debugPrint('Save API Response: ${response.body}');
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      return {'status': decoded};
     }
 
-    throw Exception('Failed to save maintenance bay: ${response.statusCode}');
+    throw Exception('Failed to save maintenance bay: ${response.statusCode} - ${response.body}');
+  }
+
+  // ============================================================
+  // SAVE MAINTENANCE ALLOCATION API
+  // ============================================================
+
+  Future<Map<String, dynamic>> saveMaintenanceBayAllocation({
+    required int mbaMbId,
+    required int mbaDepot,
+    required int mbaSlot,
+    required int mbaTrainSet,
+    required int mbaPurpose,
+    required int mbaStatus,
+    required String mbaAllocatedOn,
+    required String mbaAllocatedBy,
+    required String mbaRemarks,
+    int? userId,
+  }) async {
+    final effectiveUserId = userId ?? 1;
+    final payload = {
+      'MbaMbId': mbaMbId,
+      'MbaDepot': mbaDepot,
+      'MbaSlot': mbaSlot,
+      'MbaTrainSet': mbaTrainSet,
+      'MbaPurpose': mbaPurpose,
+      'MbaStatus': mbaStatus,
+      'MbaAllocatedOn': mbaAllocatedOn,
+      'MbaAllocatedBy': mbaAllocatedBy,
+      'MbaRemarks': mbaRemarks,
+      'CreatedBy': effectiveUserId,
+    };
+
+    debugPrint('SaveMaintenanceAllocation Payload: ${jsonEncode(payload)}');
+
+    final response = await _postJson(
+      '/asset-register/save-maintenance-allocation',
+      base: baseUrl,
+      body: payload,
+      headers: {'Role-Id': currentRoleId ?? '1'},
+    );
+
+    debugPrint('Save Allocation API Status: ${response.statusCode}');
+    debugPrint('Save Allocation API Response: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      return {'status': decoded};
+    }
+
+    throw Exception('Failed to save maintenance allocation: ${response.statusCode} - ${response.body}');
   }
 
   // ============================================================

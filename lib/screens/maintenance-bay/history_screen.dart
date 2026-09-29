@@ -35,11 +35,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    depot = widget.initialDepot == 'Uppal'
-        ? '633'
-        : widget.initialDepot == 'Miyapur'
-        ? '9373'
-        : '';
+    final initialUpper = widget.initialDepot.toUpperCase();
+    if (initialUpper.contains('MIYAPUR') || initialUpper == '9373') {
+      depot = '9373';
+    } else {
+      depot = '633'; // Default to UPPAL (matches NxAMS allocation-history.component.ts)
+    }
     _loadOptions();
   }
 
@@ -71,12 +72,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       depot = value;
       slot = '';
       bays = [];
+      loadingOptions = true;
     });
     try {
       bays = await _api.getMaintenanceBay(int.parse(value));
-      if (mounted) setState(() {});
     } catch (e) {
       if (mounted) setState(() => error = e.toString());
+    } finally {
+      if (mounted) setState(() => loadingOptions = false);
     }
   }
 
@@ -140,6 +143,36 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Build unique bay items deduplicated by slot number
+    final Map<String, String> slotMap = {};
+    for (final bay in bays) {
+      final slotKey = bay.slot > 0 ? bay.slot.toString() : (bay.id > 0 ? bay.id.toString() : '');
+      final slotLabel = bay.slotName.isNotEmpty ? bay.slotName : (slotKey.isNotEmpty ? 'Slot $slotKey' : '');
+      if (slotKey.isNotEmpty && slotLabel.isNotEmpty) {
+        if (!slotMap.containsKey(slotKey)) {
+          slotMap[slotKey] = slotLabel;
+        }
+      }
+    }
+    // If bays is still loading or empty, provide slots for depot so it's never blank
+    if (slotMap.isEmpty) {
+      final count = depot == '9373' ? 24 : 32;
+      for (int i = 1; i <= count; i++) {
+        slotMap['$i'] = 'Slot $i';
+      }
+    }
+
+    final sortedSlotEntries = slotMap.entries.toList()
+      ..sort((a, b) => (int.tryParse(a.key) ?? 0).compareTo(int.tryParse(b.key) ?? 0));
+
+    // Build unique train items
+    final Map<String, String> trainMap = {};
+    for (final train in trains) {
+      if (train.id > 0) {
+        trainMap[train.id.toString()] = train.no;
+      }
+    }
+
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
@@ -162,7 +195,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         SizedBox(
                           width: 180,
                           child: DropdownButtonFormField<String>(
-                            initialValue: depot.isEmpty ? null : depot,
+                            key: ValueKey('depot_$depot'),
+                            value: depot.isEmpty ? '633' : depot,
                             decoration: const InputDecoration(
                               labelText: 'Depot',
                               border: OutlineInputBorder(),
@@ -185,7 +219,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         SizedBox(
                           width: 220,
                           child: DropdownButtonFormField<String>(
-                            initialValue: slot.isEmpty ? null : slot,
+                            key: ValueKey('bay_${depot}_${slotMap.length}'),
+                            value: slotMap.containsKey(slot) ? slot : '',
                             decoration: const InputDecoration(
                               labelText: 'Bay',
                               border: OutlineInputBorder(),
@@ -195,10 +230,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 value: '',
                                 child: Text('All'),
                               ),
-                              ...bays.map(
-                                (bay) => DropdownMenuItem(
-                                  value: bay.slot.toString(),
-                                  child: Text(bay.slotName),
+                              ...sortedSlotEntries.map(
+                                (entry) => DropdownMenuItem(
+                                  value: entry.key,
+                                  child: Text(entry.value),
                                 ),
                               ),
                             ],
@@ -209,7 +244,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         SizedBox(
                           width: 220,
                           child: DropdownButtonFormField<String>(
-                            initialValue: trainSet.isEmpty ? null : trainSet,
+                            key: ValueKey('train_${trainMap.length}'),
+                            value: trainMap.containsKey(trainSet) ? trainSet : '',
                             decoration: const InputDecoration(
                               labelText: 'Trainset',
                               border: OutlineInputBorder(),
@@ -219,10 +255,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 value: '',
                                 child: Text('All'),
                               ),
-                              ...trains.map(
-                                (train) => DropdownMenuItem(
-                                  value: train.id.toString(),
-                                  child: Text(train.no),
+                              ...trainMap.entries.map(
+                                (entry) => DropdownMenuItem(
+                                  value: entry.key,
+                                  child: Text(entry.value),
                                 ),
                               ),
                             ],

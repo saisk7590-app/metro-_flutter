@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
@@ -36,6 +37,26 @@ class _DepotMapState extends State<DepotMap> {
 
   /// Turn OFF after collecting coordinates.
   bool developerMode = false;
+
+  static final Map<String, String> _svgCache = {};
+
+  static Future<String> _getDepotSvg(String path) async {
+    if (_svgCache.containsKey(path)) return _svgCache[path]!;
+    final raw = await rootBundle.loadString(path);
+    final processed = raw
+        .replaceFirst(
+          '<rect width="4076" height="2380" fill="white"/>',
+          '<rect width="4076" height="2380" fill="none"/>',
+        )
+        .replaceFirst(
+          '<rect width="2644" height="2111.22" fill="white"/>',
+          '<rect width="2644" height="2111.22" fill="none"/>',
+        )
+        .replaceFirst('fill="url(#pattern0_2_2)"', 'fill="none"')
+        .replaceFirst('fill="url(#pattern0_1_2)"', 'fill="none"');
+    _svgCache[path] = processed;
+    return processed;
+  }
 
   @override
   void initState() {
@@ -325,15 +346,22 @@ class _DepotMapState extends State<DepotMap> {
 
                             // 2. Depot Tracks and Labels (SVG)
                             Positioned.fill(
-                              child: widget.depot == "Miyapur"
-                                  ? SvgPicture.asset(
-                                      "assets/maps/MYP DEPO 0.svg",
-                                      fit: BoxFit.fill,
-                                    )
-                                  : SvgPicture.asset(
-                                      "assets/maps/UPL DEPO 0.svg",
-                                      fit: BoxFit.fill,
-                                    ),
+                              child: FutureBuilder<String>(
+                                future: _getDepotSvg(
+                                  widget.depot == "Miyapur"
+                                      ? "assets/maps/MYP DEPO 0.svg"
+                                      : "assets/maps/UPL DEPO 0.svg",
+                                ),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return SvgPicture.string(
+                                    snapshot.data!,
+                                    fit: BoxFit.fill,
+                                  );
+                                },
+                              ),
                             ),
 
                             // 3. Interactive Tracks with Allocation Overlays (NxAMS style)
@@ -403,114 +431,113 @@ class _DepotMapState extends State<DepotMap> {
       final trackTop = marker.y * scaleY;
       final trackWidth = marker.width * scaleX;
       final trackHeight = marker.height * scaleY;
+      final angle = marker.angle;
 
-      // 1. If allocated, show green highlight fill (#28A745)
-      if (isAllocated) {
-        widgets.add(
-          Positioned(
-            left: trackLeft,
-            top: trackTop,
-            width: trackWidth,
-            height: trackHeight,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF28A745).withOpacity(0.85),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-          ),
-        );
+      final trainName = (bay != null && isAllocated)
+          ? (bay.trainSetName.isNotEmpty
+              ? bay.trainSetName
+              : (bay.trainSetId > 0 ? 'TS-${bay.trainSetId}' : ''))
+          : '';
 
-        // 2. Train bogie overlay (3 Boghi graphic)
-        final bogieH = trackHeight * 2.2;
-        final bogieY = trackTop - (trackHeight * 1.2) / 2;
-        widgets.add(
-          Positioned(
-            left: trackLeft,
-            top: bogieY,
-            width: trackWidth,
-            height: bogieH,
-            child: IgnorePointer(
-              child: Image.asset(
-                'assets/maps/train_bogie.png',
-                fit: BoxFit.fill,
-                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-              ),
-            ),
-          ),
-        );
-
-        // 3. Centered white badge with bold Trainset Name (NxAMS style)
-        final trainName = bay.trainSetName.isNotEmpty
-            ? bay.trainSetName
-            : (bay.trainSetId > 0 ? 'TS-${bay.trainSetId}' : '');
-        if (trainName.isNotEmpty) {
-          widgets.add(
-            Positioned(
-              left: trackLeft,
-              top: trackTop,
-              width: trackWidth,
-              height: trackHeight,
-              child: IgnorePointer(
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 2,
-                          offset: Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      trainName,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 9,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      }
-
-      // 4. Interactive touch target & informative tooltip
       widgets.add(
         Positioned(
           left: trackLeft,
           top: trackTop,
           width: trackWidth,
           height: trackHeight,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => AMSUpdatePopup(
-                  initialDepot: widget.depot,
-                  initialTrack: marker.id,
+          child: Transform.rotate(
+            angle: angle,
+            alignment: Alignment.topLeft,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // 1. If allocated, show green highlight fill (#28A745) matching SVG track
+                if (isAllocated)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF28A745).withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+
+                // 2. Train bogie overlay (scaled 2.2x height, vertically centered on track, exactly matching NxAMS)
+                if (isAllocated)
+                  Positioned(
+                    left: 0,
+                    top: -(trackHeight * 1.2) / 2,
+                    width: trackWidth,
+                    height: trackHeight * 2.2,
+                    child: IgnorePointer(
+                      child: Image.asset(
+                        'assets/maps/3 Boghi small High quality.png',
+                        fit: BoxFit.fill,
+                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                          'assets/maps/train_bogie.png',
+                          fit: BoxFit.fill,
+                          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // 3. Centered white badge with bold Trainset Name (NxAMS style)
+                if (isAllocated && trainName.isNotEmpty)
+                  Positioned.fill(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(2),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 2,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          trainName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 9,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // 4. Interactive touch target & informative tooltip
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AMSUpdatePopup(
+                          initialDepot: widget.depot,
+                          initialTrack: marker.id,
+                          existingBay: bay,
+                        ),
+                      );
+                    },
+                    child: Tooltip(
+                      message: isAllocated
+                          ? '${marker.id}\nTrain: ${bay.trainSetName}\nStatus: ${bay.statusName}\nPurpose: ${bay.purposeName}'
+                          : '${marker.id} (Empty)',
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
                 ),
-              );
-            },
-            child: Tooltip(
-              message: isAllocated
-                  ? '${marker.id}\nTrain: ${bay.trainSetName}\nStatus: ${bay.statusName}\nPurpose: ${bay.purposeName}'
-                  : '${marker.id} (Empty)',
-              child: const SizedBox.expand(),
+              ],
             ),
           ),
         ),

@@ -71,11 +71,72 @@ class MaintenanceBayProvider extends ChangeNotifier {
         userId: userId,
       );
 
-      final status = response['status'] ?? response['statusCode'] ?? response['success'];
-      return status == 1 || status == '1' || status == 200 || status == true;
+      final dynamic resObj = response.containsKey('response') ? response['response'] : response;
+      if (resObj is Map<String, dynamic>) {
+        final status = resObj['status'] ?? resObj['statusCode'] ?? resObj['success'];
+        if (status == 1 || status == '1' || status == 200 || status == true || (status is num && status > 0)) {
+          return true;
+        }
+      } else if (resObj is num && resObj > 0) {
+        return true;
+      } else if (resObj == true) {
+        return true;
+      }
+      return false;
     } catch (e) {
       error = e.toString();
       debugPrint('saveMaintenanceBay error: $e');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> saveMaintenanceBayAllocation({
+    required int mbaMbId,
+    required int mbaDepot,
+    required int mbaSlot,
+    required int mbaTrainSet,
+    required int mbaPurpose,
+    required int mbaStatus,
+    required String mbaAllocatedOn,
+    required String mbaAllocatedBy,
+    required String mbaRemarks,
+    int? userId,
+  }) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      final response = await repository.saveMaintenanceBayAllocation(
+        mbaMbId: mbaMbId,
+        mbaDepot: mbaDepot,
+        mbaSlot: mbaSlot,
+        mbaTrainSet: mbaTrainSet,
+        mbaPurpose: mbaPurpose,
+        mbaStatus: mbaStatus,
+        mbaAllocatedOn: mbaAllocatedOn,
+        mbaAllocatedBy: mbaAllocatedBy,
+        mbaRemarks: mbaRemarks,
+        userId: userId,
+      );
+
+      final dynamic resObj = response.containsKey('response') ? response['response'] : response;
+      if (resObj is Map<String, dynamic>) {
+        final status = resObj['status'] ?? resObj['statusCode'] ?? resObj['success'];
+        if (status == 1 || status == '1' || status == 200 || status == true || (status is num && status > 0)) {
+          return true;
+        }
+      } else if (resObj is num && resObj > 0) {
+        return true;
+      } else if (resObj == true) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      error = e.toString();
+      debugPrint('saveMaintenanceBayAllocation error: $e');
       return false;
     } finally {
       isLoading = false;
@@ -101,7 +162,11 @@ class MaintenanceBayProvider extends ChangeNotifier {
     // 2. Suffix or prefix match
     for (final bay in maintenanceBays) {
       final sClean = bay.slotName.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
-      if (sClean.isNotEmpty && (mClean.endsWith(sClean) || sClean.endsWith(mClean))) {
+      if (sClean.isNotEmpty &&
+          (mClean.startsWith(sClean) ||
+              sClean.startsWith(mClean) ||
+              mClean.endsWith(sClean) ||
+              sClean.endsWith(mClean))) {
         return bay;
       }
     }
@@ -109,21 +174,115 @@ class MaintenanceBayProvider extends ChangeNotifier {
     // 3. Fallback for unique single-slot lines (TT, WL, WP)
     if (mUpper.contains('TT')) {
       for (final bay in maintenanceBays) {
-        if (bay.slotName.toUpperCase().contains('TT')) return bay;
+        if (bay.slotName.toUpperCase().contains('TT') || bay.slotType.toUpperCase().contains('TT')) {
+          return bay;
+        }
       }
     }
     if (mUpper.contains('WL')) {
       for (final bay in maintenanceBays) {
-        if (bay.slotName.toUpperCase().contains('WL')) return bay;
+        if (bay.slotName.toUpperCase().contains('WL') || bay.slotType.toUpperCase().contains('WL')) {
+          return bay;
+        }
       }
     }
     if (mUpper.contains('WP')) {
       for (final bay in maintenanceBays) {
-        if (bay.slotName.toUpperCase().contains('WP')) return bay;
+        if (bay.slotName.toUpperCase().contains('WP') || bay.slotType.toUpperCase().contains('WP')) {
+          return bay;
+        }
+      }
+    }
+
+    // 4. Line and numeric slot match
+    final mDigits = RegExp(r'\d+').firstMatch(markerId)?.group(0);
+    final mSlot = int.tryParse(mDigits ?? '') ?? 0;
+    final mLine = _extractLineCode(markerId);
+
+    if (mSlot > 0 && mLine.isNotEmpty) {
+      final mIsOE = mUpper.contains('OE');
+      final mIsBE = mUpper.contains('BE');
+
+      for (final bay in maintenanceBays) {
+        final bDigits = RegExp(r'\d+').firstMatch(bay.slotName)?.group(0);
+        final bSlot = bay.slot > 0 ? bay.slot : (int.tryParse(bDigits ?? '') ?? 0);
+        final bLine = bay.slotType.isNotEmpty ? bay.slotType.toUpperCase() : _extractLineCode(bay.slotName);
+
+        if (bSlot == mSlot && bLine == mLine) {
+          final bUpper = bay.slotName.toUpperCase();
+          if (mIsOE && bUpper.contains('BE')) continue;
+          if (mIsBE && bUpper.contains('OE')) continue;
+          return bay;
+        }
       }
     }
 
     return null;
+  }
+
+  /// Instantly sets or updates a bay allocation locally so CAD maps & tables reflect immediately
+  void setOrUpdateBayAllocation({
+    required String markerOrSlotName,
+    required int depotId,
+    required int slot,
+    required int trainSetId,
+    required String trainSetName,
+    required int statusId,
+    required String statusName,
+    required int purposeId,
+    required String purposeName,
+    required String inward,
+    required String outward,
+    required String remark,
+    required bool isOutward,
+    int id = 0,
+  }) {
+    final existingIndex = maintenanceBays.indexWhere((b) {
+      if (id > 0 && b.id == id) return true;
+      final sUpper = b.slotName.toUpperCase();
+      final mUpper = markerOrSlotName.toUpperCase();
+      if (sUpper.isNotEmpty && sUpper == mUpper) return true;
+      if (b.slot == slot && (b.slotType.isNotEmpty && markerOrSlotName.contains(b.slotType))) return true;
+      return false;
+    });
+
+    final updatedModel = MaintenanceBayModel(
+      id: id > 0 ? id : (existingIndex >= 0 ? maintenanceBays[existingIndex].id : 0),
+      slot: slot,
+      slotName: markerOrSlotName,
+      slotType: _extractLineCode(markerOrSlotName),
+      trainSetId: trainSetId,
+      trainSetName: trainSetName,
+      statusId: statusId,
+      statusName: statusName,
+      purposeId: purposeId,
+      purposeName: purposeName,
+      inward: inward,
+      outward: outward,
+      remark: remark,
+      isAllocated: trainSetId > 0,
+      isOutward: isOutward,
+    );
+
+    if (existingIndex >= 0) {
+      maintenanceBays[existingIndex] = updatedModel;
+    } else {
+      maintenanceBays.add(updatedModel);
+    }
+
+    notifyListeners();
+  }
+
+  static String _extractLineCode(String text) {
+    final upper = text.toUpperCase();
+    if (upper.contains('SBL')) return 'SBL';
+    if (upper.contains('IBL')) return 'IBL';
+    if (upper.contains('MAIN')) return 'MAIN';
+    if (upper.contains('PW')) return 'PW';
+    if (upper.contains('WP')) return 'WP';
+    if (upper.contains('WL')) return 'WL';
+    if (upper.contains('TT')) return 'TT';
+    return '';
   }
 
   /// Calculates dynamically the occupied train count for a given section
