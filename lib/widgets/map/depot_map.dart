@@ -90,17 +90,6 @@ class _DepotMapState extends State<DepotMap> {
     }
   }
 
-  double _depotAspect() {
-    switch (widget.depot) {
-      case 'Miyapur':
-        return 4076.0 / 2380.0;
-      case 'Uppal':
-        return 2644.0 / 2112.0;
-      default:
-        return 4076.0 / 2380.0;
-    }
-  }
-
   double _depotWidth() {
     switch (widget.depot) {
       case 'Miyapur':
@@ -456,7 +445,7 @@ class _DepotMapState extends State<DepotMap> {
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF28A745).withOpacity(0.85),
+                        color: const Color(0xFF28A745).withValues(alpha: 0.85),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),

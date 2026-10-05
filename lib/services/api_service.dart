@@ -701,8 +701,8 @@ class ApiService {
       final data = _normalizeListResponse(decoded);
 
       return data
-          .where((e) => e is Map)
-          .map((e) => TrainModel.fromJson(Map<String, dynamic>.from(e as Map)))
+          .whereType<Map>()
+          .map((e) => TrainModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
 

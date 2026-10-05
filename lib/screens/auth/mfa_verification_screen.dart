@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../models/auth/login_model.dart';
 import '../../services/api_service.dart';
-import 'security_verification_screen.dart';
+import '../../providers/login_provider.dart';
+import '../../navigation/main_navigation_screen.dart';
 import 'role_selection_screen.dart';
+import 'package:provider/provider.dart';
 
 class MfaVerificationScreen extends StatefulWidget {
   final LoginModel loginData;
@@ -66,16 +68,25 @@ class _MfaVerificationScreenState extends State<MfaVerificationScreen> {
     }
   }
 
-  void _continueToApp() {
+  Future<void> _continueToApp() async {
     final roles = widget.loginData.roleNames
         .split(',')
         .map((role) => role.trim())
         .where((role) => role.isNotEmpty)
         .toList();
-    final next = roles.length > 1
-        ? RoleSelectionScreen(loginData: widget.loginData)
-        : const SecurityVerificationScreen();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => next));
+    if (roles.length > 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => RoleSelectionScreen(loginData: widget.loginData)),
+      );
+    } else {
+      await context.read<LoginProvider>().saveSessionForBiometrics();
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+      );
+    }
   }
 
   @override

@@ -69,14 +69,14 @@ class SectionButtons extends StatelessWidget {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: lineColor.withOpacity(0.35),
+                        color: lineColor.withValues(alpha: 0.35),
                         blurRadius: 6,
                         spreadRadius: 1,
                       ),
                     ]
                   : [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 3,
                         offset: const Offset(0, 1),
                       ),
@@ -90,7 +90,7 @@ class SectionButtons extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
-                    color: lineColor.withOpacity(0.18),
+                    color: lineColor.withValues(alpha: 0.18),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(6),
                       topRight: Radius.circular(6),

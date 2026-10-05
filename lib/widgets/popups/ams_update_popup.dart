@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/maintenance_bay_model.dart';
-import '../../models/status_model.dart';
-import '../../models/maintenance_purpose_model.dart';
-import '../../models/train_model.dart';
 import '../../providers/login_provider.dart';
 import '../../providers/maintenance_bay_provider.dart';
 import '../../providers/maintenance_purpose_provider.dart';
@@ -810,7 +807,7 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981),
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFF10B981).withOpacity(0.5),
+                      disabledBackgroundColor: const Color(0xFF10B981).withValues(alpha: 0.5),
                       disabledForegroundColor: Colors.white70,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
@@ -862,7 +859,7 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
-          value: options.any((o) => o.value == value) ? value : options.first.value,
+          initialValue: options.any((o) => o.value == value) ? value : options.first.value,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
@@ -968,7 +965,7 @@ class _AMSUpdatePopupState extends State<AMSUpdatePopup> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E3A8A).withOpacity(0.3) : const Color(0xFFEFF6FF),
+            color: isDark ? const Color(0xFF1E3A8A).withValues(alpha: 0.3) : const Color(0xFFEFF6FF),
             borderRadius: BorderRadius.circular(6),
             border: const Border(
               left: BorderSide(color: Color(0xFF2563EB), width: 4),

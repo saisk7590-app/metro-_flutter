@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/auth/login_model.dart';
 import '../../providers/login_provider.dart';
-import 'security_verification_screen.dart';
+import '../../navigation/main_navigation_screen.dart';
 import 'package:provider/provider.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -17,15 +17,29 @@ class RoleSelectionScreen extends StatelessWidget {
         .map((x) => x.trim())
         .toList();
 
-    void select(int index) {
-      context.read<LoginProvider>().selectRole(
-        roleId: index < ids.length ? ids[index] : '',
-        roleName: names[index],
-        unitAccessScope: index < scopes.length ? scopes[index] : '',
+    Future<void> select(int index) async {
+      final roleId = index < ids.length ? ids[index] : '';
+      final roleName = names[index];
+      final unitScope = index < scopes.length ? scopes[index] : '';
+
+      final loginProv = context.read<LoginProvider>();
+      loginProv.selectRole(
+        roleId: roleId,
+        roleName: roleName,
+        unitAccessScope: unitScope,
       );
+
+      // Save session for future biometric login
+      await loginProv.saveSessionForBiometrics(
+        roleId: roleId,
+        roleName: roleName,
+        unitAccessScope: unitScope,
+      );
+
+      if (!context.mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const SecurityVerificationScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
       );
     }
 

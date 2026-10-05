@@ -5,11 +5,12 @@ import '../../theme/spacing.dart';
 import '../../providers/login_provider.dart';
 import '../../services/api_service.dart';
 import '../../models/auth/login_model.dart';
+import '../../navigation/main_navigation_screen.dart';
+import 'biometric_unlock_screen.dart';
 import 'mfa_verification_screen.dart';
 import 'role_selection_screen.dart';
 import 'reset_password_screen.dart';
 import 'forgot_password_screen.dart';
-import 'security_verification_screen.dart';
 import '../../../widgets/auth/login/login_logo.dart';
 import '../../../widgets/auth/login/login_header.dart';
 import '../../../widgets/auth/login/login_form.dart';
@@ -32,8 +33,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool obscurePassword = true;
   bool showCaptcha = false;
+  bool hasBiometricSession = false;
+  String savedUserDisplayName = '';
   String captchaId = '';
   String captchaImage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSavedBiometrics();
+  }
+
+  Future<void> _checkSavedBiometrics() async {
+    final hasSession = await LoginProvider.hasSavedBiometricSession();
+    if (hasSession && mounted) {
+      final name = await LoginProvider.getSavedUserDisplayName();
+      setState(() {
+        hasBiometricSession = true;
+        savedUserDisplayName = name;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -62,16 +82,27 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _openRoleOrSecurity(LoginModel loginData) {
+  Future<void> _openRoleOrDashboard(LoginModel loginData) async {
     final roles = loginData.roleNames
         .split(',')
         .map((role) => role.trim())
         .where((role) => role.isNotEmpty)
         .toList();
-    final destination = roles.length > 1
-        ? RoleSelectionScreen(loginData: loginData)
-        : const SecurityVerificationScreen();
-    Navigator.push(context, MaterialPageRoute(builder: (_) => destination));
+
+    if (roles.length > 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => RoleSelectionScreen(loginData: loginData)),
+      );
+    } else {
+      // Save session for future biometric login - user logs in with credentials only once!
+      await context.read<LoginProvider>().saveSessionForBiometrics();
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+      );
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -124,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        _openRoleOrSecurity(loginData);
+        await _openRoleOrDashboard(loginData);
       }
       return;
     }
@@ -183,6 +214,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   onRefreshCaptcha: _loadCaptcha,
                   onLogin: _handleLogin,
                 ),
+                if (hasBiometricSession) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: colors.primary.withValues(alpha: 0.6)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BiometricUnlockScreen(),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.fingerprint, color: colors.primary),
+                    label: Text(
+                      'Unlock with Biometrics ($savedUserDisplayName)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: colors.primary,
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 ForgotPasswordLink(
                   onTap: () {

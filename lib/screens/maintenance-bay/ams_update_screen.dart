@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../constants/website_bay_markers.dart';
-import '../../models/maintenance_bay_model.dart';
 import '../../providers/active_trains_provider.dart';
 import '../../providers/login_provider.dart';
 import '../../providers/maintenance_bay_provider.dart';
@@ -624,7 +623,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
+                          color: Colors.black.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -711,7 +710,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 DropdownButtonFormField<String>(
-                                  value: depot,
+                                  initialValue: depot,
                                   decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                     border: OutlineInputBorder(
@@ -750,7 +749,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                 const SizedBox(height: 6),
                                 DropdownButtonFormField<String>(
                                   key: ValueKey('track_${depot}_${bayOptions.length}'),
-                                  value: bayOptions.contains(track) ? track : null,
+                                  initialValue: bayOptions.contains(track) ? track : null,
                                   hint: const Text('Select Bay / Track', style: TextStyle(fontSize: 13)),
                                   decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -785,8 +784,8 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
                                               color: isAlloc
-                                                  ? const Color(0xFF10B981).withOpacity(0.15)
-                                                  : Colors.grey.withOpacity(0.12),
+                                                  ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                                                  : Colors.grey.withValues(alpha: 0.12),
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                             child: Text(
@@ -1042,7 +1041,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF10B981),
                                 foregroundColor: Colors.white,
-                                disabledBackgroundColor: const Color(0xFF10B981).withOpacity(0.5),
+                                disabledBackgroundColor: const Color(0xFF10B981).withValues(alpha: 0.5),
                                 disabledForegroundColor: Colors.white70,
                                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
@@ -1099,7 +1098,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
-          value: options.any((o) => o.value == value) ? value : options.first.value,
+          initialValue: options.any((o) => o.value == value) ? value : options.first.value,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
@@ -1205,7 +1204,7 @@ class _AMSUpdateScreenState extends State<AMSUpdateScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E3A8A).withOpacity(0.3) : const Color(0xFFEFF6FF),
+            color: isDark ? const Color(0xFF1E3A8A).withValues(alpha: 0.3) : const Color(0xFFEFF6FF),
             borderRadius: BorderRadius.circular(6),
             border: const Border(
               left: BorderSide(color: Color(0xFF2563EB), width: 4),

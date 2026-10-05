@@ -196,7 +196,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           width: 180,
                           child: DropdownButtonFormField<String>(
                             key: ValueKey('depot_$depot'),
-                            value: depot.isEmpty ? '633' : depot,
+                            initialValue: depot.isEmpty ? '633' : depot,
                             decoration: const InputDecoration(
                               labelText: 'Depot',
                               border: OutlineInputBorder(),
@@ -220,7 +220,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           width: 220,
                           child: DropdownButtonFormField<String>(
                             key: ValueKey('bay_${depot}_${slotMap.length}'),
-                            value: slotMap.containsKey(slot) ? slot : '',
+                            initialValue: slotMap.containsKey(slot) ? slot : '',
                             decoration: const InputDecoration(
                               labelText: 'Bay',
                               border: OutlineInputBorder(),
@@ -245,7 +245,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           width: 220,
                           child: DropdownButtonFormField<String>(
                             key: ValueKey('train_${trainMap.length}'),
-                            value: trainMap.containsKey(trainSet) ? trainSet : '',
+                            initialValue: trainMap.containsKey(trainSet) ? trainSet : '',
                             decoration: const InputDecoration(
                               labelText: 'Trainset',
                               border: OutlineInputBorder(),

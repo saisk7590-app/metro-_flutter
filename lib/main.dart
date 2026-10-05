@@ -10,11 +10,15 @@ import 'package:metro_flutter/providers/login_provider.dart';
 import 'package:metro_flutter/providers/trainset_meter_reading_provider.dart';
 
 import 'package:metro_flutter/screens/auth/login_screen.dart';
+import 'package:metro_flutter/screens/auth/biometric_unlock_screen.dart';
 import 'http_client_runner.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final hasBiometricSession = await LoginProvider.hasSavedBiometricSession();
+
   final app = MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeNotifier()),
@@ -30,14 +34,15 @@ void main() {
       // Trainset Meter Reading Provider
       ChangeNotifierProvider(create: (_) => TrainsetMeterReadingProvider()),
     ],
-    child: const MyApp(),
+    child: MyApp(hasBiometricSession: hasBiometricSession),
   );
 
   runAppWithHttpClient(app);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasBiometricSession;
+  const MyApp({super.key, this.hasBiometricSession = false});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +55,10 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeNotifier.themeMode,
 
-      home: const LoginScreen(),
+      home: hasBiometricSession
+          ? const BiometricUnlockScreen()
+          : const LoginScreen(),
     );
   }
 }
+

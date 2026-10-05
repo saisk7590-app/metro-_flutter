@@ -142,7 +142,7 @@ class _MeterBottomSheetState extends State<MeterBottomSheet> {
         minChildSize: 0.70,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) {
+        builder: (_, scrollController) {
           return Container(
             decoration: BoxDecoration(
               color: colors.surface,
@@ -271,95 +271,7 @@ class _MeterBottomSheetState extends State<MeterBottomSheet> {
                   onCancel: () {
                     Navigator.pop(context);
                   },
-                  onSave: () async {
-                    setState(() {
-                      isSaving = true;
-                    });
-
-                    try {
-                      final loginData = context.read<LoginProvider>().loginData;
-                      final token =
-                          loginData?.token ?? ApiService.currentToken ?? '';
-                      final userSession = loginData?.encodedUserSession ??
-                          ApiService.currentUserSession ??
-                          '';
-                      final roleId = context.read<LoginProvider>().selectedRoleId ??
-                          (loginData != null && loginData.roleIds.isNotEmpty
-                              ? loginData.roleIds.split(',').first.trim()
-                              : ApiService.currentRoleId ?? '1');
-                      final userId = loginData?.id ?? 0;
-
-                      final payload = meterReadings.map((meter) {
-                        return meter.toApiJson(
-                          userId: userId,
-                          date: widget.date,
-                        );
-                      }).toList();
-
-                      debugPrint("========== METER SAVE PAYLOAD ==========");
-                      debugPrint(payload.toString());
-                      debugPrint("========================================");
-
-                      final result = await ApiService().addTrainsetMeterReadings(
-                        readings: payload,
-                        token: token,
-                        userSession: userSession,
-                        roleId: roleId,
-                      );
-
-                      if (!mounted) return;
-
-                      final statusVal = result['Status'] ?? result['status'];
-                      final isSuccess = statusVal != null && statusVal != 0;
-
-                      if (isSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Meter readings saved successfully"),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-
-                        final completed = meterReadings
-                            .where((e) => e.isCompleted)
-                            .length;
-                        String status;
-                        if (completed == 0) {
-                          status = "Not Started";
-                        } else if (completed == meterReadings.length) {
-                          status = "Completed";
-                        } else {
-                          status = "Partial";
-                        }
-
-                        Navigator.pop(context, status);
-                      } else {
-                        final msg = result['Message'] ??
-                            result['message'] ??
-                            "Failed to save meter readings";
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(msg.toString()),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        setState(() {
-                          isSaving = false;
-                        });
-                      }
-                    } catch (e) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Failed to save: $e"),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      setState(() {
-                        isSaving = false;
-                      });
-                    }
-                  },
+                  onSave: _handleSave,
                 ),
               ],
             ),
@@ -367,5 +279,96 @@ class _MeterBottomSheetState extends State<MeterBottomSheet> {
         },
       ),
     );
+  }
+
+  Future<void> _handleSave() async {
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      final loginData = context.read<LoginProvider>().loginData;
+      final token =
+          loginData?.token ?? ApiService.currentToken ?? '';
+      final userSession = loginData?.encodedUserSession ??
+          ApiService.currentUserSession ??
+          '';
+      final roleId = context.read<LoginProvider>().selectedRoleId ??
+          (loginData != null && loginData.roleIds.isNotEmpty
+              ? loginData.roleIds.split(',').first.trim()
+              : ApiService.currentRoleId ?? '1');
+      final userId = loginData?.id ?? 0;
+
+      final payload = meterReadings.map((meter) {
+        return meter.toApiJson(
+          userId: userId,
+          date: widget.date,
+        );
+      }).toList();
+
+      debugPrint("========== METER SAVE PAYLOAD ==========");
+      debugPrint(payload.toString());
+      debugPrint("========================================");
+
+      final result = await ApiService().addTrainsetMeterReadings(
+        readings: payload,
+        token: token,
+        userSession: userSession,
+        roleId: roleId,
+      );
+
+      if (!mounted) return;
+
+      final statusVal = result['Status'] ?? result['status'];
+      final isSuccess = statusVal != null && statusVal != 0;
+
+      if (isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Meter readings saved successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        final completed = meterReadings
+            .where((e) => e.isCompleted)
+            .length;
+        String status;
+        if (completed == 0) {
+          status = "Not Started";
+        } else if (completed == meterReadings.length) {
+          status = "Completed";
+        } else {
+          status = "Partial";
+        }
+
+        if (!mounted) return;
+        Navigator.pop(context, status);
+      } else {
+        final msg = result['Message'] ??
+            result['message'] ??
+            "Failed to save meter readings";
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() {
+          isSaving = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to save: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() {
+        isSaving = false;
+      });
+    }
   }
 }
