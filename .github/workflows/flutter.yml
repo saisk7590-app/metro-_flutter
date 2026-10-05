@@ -1,73 +1,38 @@
 name: Flutter APK Build
 
-
-
 on:
-
   push:
-
     branches:
-
       - main
-
-
-
   workflow_dispatch:
 
-
-
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
-
-
     steps:
-
       - name: Checkout Code
-
-        uses: actions/checkout@v3
-
-
+        uses: actions/checkout@v4
 
       - name: Install Flutter
-
         uses: subosito/flutter-action@v2
-
         with:
-
-            channel: 'stable'
-
-           
-
-
+          channel: 'stable'
 
       - name: Check Flutter Version
-
         run: flutter --version
 
-
-
       - name: Install Dependencies
-
         run: flutter pub get
 
-
-
       - name: Build APK
-
         run: flutter build apk --release
 
+      - name: Rename APK to Original App Name
+        run: cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/metro_flutter.apk
 
-
-      - name: Upload APK
-
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
-
         with:
-
-          name: release-apk
-
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: metro_flutter
+          path: build/app/outputs/flutter-apk/metro_flutter.apk

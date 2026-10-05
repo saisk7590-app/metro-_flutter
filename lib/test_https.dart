@@ -1,11 +1,11 @@
-import 'package:http/http.dart' as http;
+import 'http_client_runner.dart';
 
 Future<String> testHttpsConnection() async {
   const url =
       'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/login';
 
   try {
-    final response = await http.post(
+    final response = await getAppHttpClient().post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
       body: '{}',

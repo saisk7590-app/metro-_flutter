@@ -16,6 +16,7 @@ import 'theme/app_theme.dart';
 import 'theme/theme_notifier.dart';
 
 void main() async {
+  initHttpClient();
   WidgetsFlutterBinding.ensureInitialized();
   final hasBiometricSession = await LoginProvider.hasSavedBiometricSession();
 

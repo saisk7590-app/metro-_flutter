@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-//import 'package:crypto/crypto.dart';
+import '../http_client_runner.dart';
 
 import '../models/auth/login_model.dart';
 import '../models/trainset_meter_reading_model.dart';
@@ -26,6 +26,7 @@ class ApiService {
   static String? currentToken;
   static String? currentUserSession;
   static String? currentRoleId;
+  static final http.Client _client = getAppHttpClient();
 
   static String sanitizeToken(String raw) {
     var clean = raw.replaceFirst(RegExp(r'^Bearer\s+', caseSensitive: false), '').trim();
@@ -87,7 +88,7 @@ class ApiService {
       });
     }
 
-    return await http.post(
+    return await _client.post(
       uri,
       headers: effectiveHeaders,
       body: body == null ? null : jsonBody,
@@ -105,7 +106,7 @@ class ApiService {
     String captchaId = '',
     String captchaValue = '',
   }) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/login',
       ),
@@ -137,7 +138,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> generateCaptcha() async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/GenerateCaptcha',
       ),
@@ -174,7 +175,7 @@ class ApiService {
     final effSession = userSession.isNotEmpty ? userSession : (currentUserSession ?? '');
     final effRoleId = roleId.isNotEmpty ? roleId : (currentRoleId ?? '1');
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/assetregister/api/asset-register/get-trainsets-meterreading',
       ),
@@ -282,7 +283,7 @@ class ApiService {
     final effSession = userSession.isNotEmpty ? userSession : (currentUserSession ?? '');
     final effRoleId = roleId.isNotEmpty ? roleId : (currentRoleId ?? '1');
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/assetregister/api/asset-register/get-trainset-meterlist',
       ),
@@ -346,7 +347,7 @@ class ApiService {
     final effSession = userSession.isNotEmpty ? userSession : (currentUserSession ?? '');
     final effRoleId = roleId.isNotEmpty ? roleId : (currentRoleId ?? '1');
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/assetregister/api/asset-register/add-trainset-meterreadings',
       ),
@@ -384,7 +385,7 @@ class ApiService {
     required String mfaReference,
     required String otp,
   }) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/validate-OTP',
       ),
@@ -404,7 +405,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> resendOtp({required int userId}) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/resend-OTP',
       ),
@@ -426,7 +427,7 @@ class ApiService {
     required String newPassword,
     required int updatedBy,
   }) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/reset-password',
       ),
@@ -447,7 +448,7 @@ class ApiService {
     required String captchaId,
     required String captchaValue,
   }) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/ValidateCaptcha',
       ),
@@ -463,7 +464,7 @@ class ApiService {
     required String username,
     required String mobileNumber,
   }) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/request-reset-pwd',
       ),
@@ -487,7 +488,7 @@ class ApiService {
     required String otp,
     required String newPassword,
   }) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(
         'https://nxamsdev.winfocus.co.in/NxAmsDevServices/adminService/api/Admin/request-update-pwd',
       ),
