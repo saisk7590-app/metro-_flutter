@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../navigation/main_navigation_screen.dart';
+import '../../navigation/maintenance_bay_navigation_screen.dart';
 import '../../theme/spacing.dart';
 
 import '../../widgets/common/custom_button.dart';
@@ -35,7 +35,7 @@ class _SecurityVerificationScreenState
   void _goToDashboard() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+      MaterialPageRoute(builder: (_) => const MaintenanceBayNavigationScreen()),
     );
   }
 

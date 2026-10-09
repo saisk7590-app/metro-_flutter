@@ -82,6 +82,12 @@ class TrainsetMeterReadingProvider extends ChangeNotifier {
     return result.items;
   }
 
+  void setErrorMessage(String message) {
+    _isLoading = false;
+    _errorMessage = message;
+    notifyListeners();
+  }
+
   void clearError() {
     _errorMessage = null;
     notifyListeners();

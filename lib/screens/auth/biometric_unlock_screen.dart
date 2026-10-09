@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../navigation/main_navigation_screen.dart';
+import '../../navigation/maintenance_bay_navigation_screen.dart';
 import '../../providers/login_provider.dart';
 import '../../services/biometric_auth_service.dart';
+import '../../widgets/auth/biometric_widgets.dart';
 import 'login_screen.dart';
 
 class BiometricUnlockScreen extends StatefulWidget {
@@ -82,7 +82,7 @@ class _BiometricUnlockScreenState extends State<BiometricUnlockScreen>
       if (restored) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+          MaterialPageRoute(builder: (_) => const MaintenanceBayNavigationScreen()),
         );
         return;
       } else {
@@ -122,158 +122,19 @@ class _BiometricUnlockScreenState extends State<BiometricUnlockScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // App Branding
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: primaryColor.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.directions_subway_rounded,
-                      size: 40,
-                      color: primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'HYDERABAD METRO AMS',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                  if (kIsWeb) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.amber.shade700, width: 1),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.laptop_chromebook, size: 14, color: Colors.amber.shade800),
-                          const SizedBox(width: 6),
-                          Text(
-                            'PC Web Test Mode (Biometrics Simulated)',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.amber.shade900,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 36),
-
-                  // User Profile Avatar
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          primaryColor,
-                          primaryColor.withValues(alpha: 0.75),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: primaryColor.withValues(alpha: 0.25),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        _displayName.isNotEmpty
-                            ? _displayName.substring(0, 1).toUpperCase()
-                            : 'U',
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Greeting
-                  Text(
-                    'Welcome back,',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _displayName,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF1E293B),
-                    ),
+                  BiometricHeaderProfile(
+                    displayName: _displayName,
+                    primaryColor: primaryColor,
+                    isDark: isDark,
                   ),
                   const SizedBox(height: 48),
 
-                  // PhonePe style Biometric Fingerprint Button
-                  GestureDetector(
+                  BiometricFingerprintButton(
+                    isAuthenticating: _isAuthenticating,
+                    pulseAnimation: _pulseAnimation,
                     onTap: _startBiometricAuth,
-                    child: ScaleTransition(
-                      scale: _isAuthenticating
-                          ? _pulseAnimation
-                          : const AlwaysStoppedAnimation(1.0),
-                      child: Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isDark
-                              ? const Color(0xFF1E293B)
-                              : Colors.white,
-                          border: Border.all(
-                            color: _isAuthenticating
-                                ? primaryColor
-                                : (isDark
-                                    ? Colors.grey.shade800
-                                    : Colors.grey.shade300),
-                            width: 2.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: primaryColor.withValues(
-                                alpha: _isAuthenticating ? 0.35 : 0.12,
-                              ),
-                              blurRadius: 24,
-                              spreadRadius: _isAuthenticating ? 4 : 1,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.fingerprint_rounded,
-                            size: 64,
-                            color: _isAuthenticating
-                                ? primaryColor
-                                : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
-                          ),
-                        ),
-                      ),
-                    ),
+                    primaryColor: primaryColor,
+                    isDark: isDark,
                   ),
                   const SizedBox(height: 20),
 

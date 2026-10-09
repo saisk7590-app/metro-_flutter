@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../widgets/auth/forgot_password_forms.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -194,18 +195,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
-  Widget _captchaImage() {
-    if (captchaImage.isEmpty) return const SizedBox.shrink();
-    try {
-      final bytes = Uri.parse(
-        'data:image/png;base64,$captchaImage',
-      ).data!.contentAsBytes();
-      return Image.memory(Uint8List.fromList(bytes), height: 70);
-    } catch (_) {
-      return const SizedBox.shrink();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,114 +204,31 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
-            child: userVerified ? _resetForm() : _requestForm(),
+            child: userVerified
+                ? ForgotPasswordResetForm(
+                    otpController: otp,
+                    newPasswordController: newPassword,
+                    confirmPasswordController: confirmPassword,
+                    seconds: seconds,
+                    loading: loading,
+                    message: message,
+                    onResendOtp: _resendOtp,
+                    onResetPassword: _updatePassword,
+                  )
+                : ForgotPasswordRequestForm(
+                    usernameController: username,
+                    mobileController: mobile,
+                    captchaController: captcha,
+                    captchaImage: captchaImage,
+                    loading: loading,
+                    message: message,
+                    onRefreshCaptcha: _loadCaptcha,
+                    onSendOtp: _sendOtp,
+                    onBackToLogin: () => Navigator.pop(context),
+                  ),
           ),
         ),
       ),
     );
   }
-
-  Widget _requestForm() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      const Text(
-        'Enter your username and mobile number. A 6-digit OTP will be sent to verify your details.',
-      ),
-      const SizedBox(height: 20),
-      TextField(
-        controller: username,
-        decoration: const InputDecoration(
-          labelText: 'User name',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      const SizedBox(height: 12),
-      TextField(
-        controller: mobile,
-        keyboardType: TextInputType.phone,
-        decoration: const InputDecoration(
-          labelText: 'Mobile number',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      const SizedBox(height: 16),
-      Center(child: _captchaImage()),
-      TextField(
-        controller: captcha,
-        decoration: InputDecoration(
-          labelText: 'CAPTCHA',
-          border: const OutlineInputBorder(),
-          suffixIcon: IconButton(
-            onPressed: loading ? null : _loadCaptcha,
-            icon: const Icon(Icons.refresh),
-          ),
-        ),
-      ),
-      if (message != null) _message(),
-      const SizedBox(height: 20),
-      FilledButton(
-        onPressed: loading ? null : _sendOtp,
-        child: Text(loading ? 'SENDING...' : 'SEND OTP'),
-      ),
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('BACK TO LOGIN'),
-      ),
-    ],
-  );
-
-  Widget _resetForm() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      const Text('Enter the OTP sent to your mobile, then set a new password.'),
-      const SizedBox(height: 20),
-      TextField(
-        controller: otp,
-        keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
-          labelText: 'OTP',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      const SizedBox(height: 8),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(seconds > 0 ? 'OTP expires in $seconds seconds' : 'OTP expired'),
-          TextButton(
-            onPressed: loading || seconds > 0 ? null : _resendOtp,
-            child: const Text('RESEND'),
-          ),
-        ],
-      ),
-      TextField(
-        controller: newPassword,
-        obscureText: true,
-        decoration: const InputDecoration(
-          labelText: 'New password',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      const SizedBox(height: 12),
-      TextField(
-        controller: confirmPassword,
-        obscureText: true,
-        decoration: const InputDecoration(
-          labelText: 'Confirm password',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      if (message != null) _message(),
-      const SizedBox(height: 20),
-      FilledButton(
-        onPressed: loading ? null : _updatePassword,
-        child: Text(loading ? 'RESETTING...' : 'RESET PASSWORD'),
-      ),
-    ],
-  );
-
-  Widget _message() => Padding(
-    padding: const EdgeInsets.only(top: 12),
-    child: Text(message!, textAlign: TextAlign.center),
-  );
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Generate Perfect Miyapur Background</title>
+</head>
+<body>
+  <h2>Generating Perfect Miyapur Background...</h2>
+  <div id="status">Loading source image...</div>
+  <canvas id="canvas" width="4076" height="2380" style="display:none;"></canvas>
+  <a id="downloadLink" style="display:none;">Download</a>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const downloadLink = document.getElementById('downloadLink');
+
+    const img = new Image();
+    img.onload = () => {
+      status.textContent = 'Rendering 4076x2380 canvas...';
+
+      // 1. Fill white canvas
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 4076, 2380);
+
+      // 2. Clip to exact rect bounds (2, 37, 4076, 2336)
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(2, 37, 4076, 2336);
+      ctx.clip();
+
+      // 3. Exact transform
+      ctx.setTransform(0, 1.707601984, -1.489765772, 0, 5144.672896, -529.92384);
+      ctx.drawImage(img, 0, 0);
+      ctx.restore();
+
+      status.textContent = 'Exporting data URL...';
+      
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.download = 'myp_depot_bg.png';
+        downloadLink.click();
+        status.textContent = 'DOWNLOAD_COMPLETED_SIZE_' + blob.size;
+      }, 'image/png');
+    };
+
+    img.onerror = (e) => {
+      status.textContent = 'Error loading image: ' + e;
+    };
+
+    // Load original extracted image from the same directory
+    img.src = 'myp_depot_bg.png';
+  </script>
+</body>
+</html>

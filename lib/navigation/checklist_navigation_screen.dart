@@ -18,29 +18,32 @@ class ChecklistNavigationScreen extends StatefulWidget {
 class _ChecklistNavigationScreenState extends State<ChecklistNavigationScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    ChecklistScreen(),
-    WorkOrdersScreen(),
-    WorkOrderHistoryScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final List<Widget> screens = [
+      const ChecklistScreen(),
+      WorkOrdersScreen(
+        onSwitchToChecklist: () => setState(() => _currentIndex = 0),
+      ),
+      const WorkOrderHistoryScreen(),
+    ];
+
     return Scaffold(
       key: AppScaffoldKeys.checklistKey,
       drawer: const AppSidebar(currentModule: 'checklist'),
-
-      body: _screens[_currentIndex],
-
+      body: screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: Theme.of(context).primaryColor,
+        selectedItemColor: theme.primaryColor,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.fact_check_outlined),
             activeIcon: Icon(Icons.fact_check),
-            label: 'Checklist',
+            label: 'Checklists',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_outlined),

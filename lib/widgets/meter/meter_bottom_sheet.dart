@@ -10,13 +10,14 @@ import 'meter_progress_card.dart';
 import 'save_cancel_bar.dart';
 
 class MeterBottomSheet extends StatefulWidget {
-  static int selectedTrainsetId = 0;
+  final int trainsetId;
   final String trainset;
   final String location;
   final String date;
 
   const MeterBottomSheet({
     super.key,
+    required this.trainsetId,
     required this.trainset,
     required this.location,
     required this.date,
@@ -62,24 +63,26 @@ class _MeterBottomSheetState extends State<MeterBottomSheet> {
 
     try {
       final rows = await ApiService().getTrainsetMeterDetails(
-        trainsetId: MeterBottomSheet.selectedTrainsetId,
+        trainsetId: widget.trainsetId,
         location: widget.location,
-        date: widget.date,
+        date: widget.date.isNotEmpty
+            ? widget.date
+            : DateTime.now().toIso8601String().split('.').first,
         token: token,
         userSession: userSession,
         roleId: roleId,
       );
 
       final loadedMeters = rows.map((row) {
-        final previousReading = _toInt(row['mr_previousreading']);
-        final currentReading = _toNullableInt(row['mr_currentreading']);
+        final previousReading = _toDouble(row['mr_previousreading']);
+        final currentReading = _toNullableDouble(row['mr_currentreading']);
         final reset = row['mr_reset'] == 1 || row['mr_reset'] == true;
         final resetRemarks = row['mr_reset_remarks']?.toString() ?? '';
         final meterId = _toInt(row['mmr_meter_type']);
         final trainsetId = _toInt(
-          row['mmr_meter_assetid'] ?? MeterBottomSheet.selectedTrainsetId,
+          row['mmr_meter_assetid'] ?? widget.trainsetId,
         );
-        final cumulativeReading = _toInt(row['mr_cumilativereading']);
+        final cumulativeReading = _toDouble(row['mr_cumilativereading']);
 
         final meter = MeterReading(
           meterId: meterId,
@@ -121,15 +124,20 @@ class _MeterBottomSheetState extends State<MeterBottomSheet> {
     }
   }
 
+  double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0.0;
+  }
+
+  double? _toNullableDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString());
+  }
+
   int _toInt(dynamic value) {
     if (value is num) return value.toInt();
     return int.tryParse(value?.toString() ?? '') ?? 0;
-  }
-
-  int? _toNullableInt(dynamic value) {
-    if (value == null) return null;
-    if (value is num) return value.toInt();
-    return int.tryParse(value.toString());
   }
 
   @override

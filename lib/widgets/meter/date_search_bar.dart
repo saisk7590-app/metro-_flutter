@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DateSearchBar extends StatelessWidget {
-  final DateTime selectedDate;
+  final DateTime? selectedDate;
   final TextEditingController searchController;
 
   final VoidCallback onPickDate;
@@ -40,9 +40,16 @@ class DateSearchBar extends StatelessWidget {
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
                     child: Text(
-                      "${selectedDate.day.toString().padLeft(2, '0')}-"
-                      "${selectedDate.month.toString().padLeft(2, '0')}-"
-                      "${selectedDate.year}",
+                      selectedDate != null
+                          ? "${selectedDate!.day.toString().padLeft(2, '0')}-"
+                              "${selectedDate!.month.toString().padLeft(2, '0')}-"
+                              "${selectedDate!.year}"
+                          : "All Dates (Tap to select date)",
+                      style: TextStyle(
+                        color: selectedDate != null
+                            ? null
+                            : Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ),
                 ),

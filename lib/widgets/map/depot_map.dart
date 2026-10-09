@@ -43,7 +43,10 @@ class _DepotMapState extends State<DepotMap> {
   static Future<String> _getDepotSvg(String path) async {
     if (_svgCache.containsKey(path)) return _svgCache[path]!;
     final raw = await rootBundle.loadString(path);
-    final processed = raw
+    final defsIdx = raw.indexOf('<defs>');
+    final withoutDefs =
+        defsIdx != -1 ? '${raw.substring(0, defsIdx)}</svg>' : raw;
+    final processed = withoutDefs
         .replaceFirst(
           '<rect width="4076" height="2380" fill="white"/>',
           '<rect width="4076" height="2380" fill="none"/>',

@@ -28,11 +28,7 @@ class AppHttpOverrides extends HttpOverrides {
   }
 }
 
-http.Client? _cachedClient;
-
 http.Client createPlatformHttpClient() {
-  if (_cachedClient != null) return _cachedClient!;
-
   SecurityContext? ctx;
   try {
     ctx = SecurityContext(withTrustedRoots: true);
@@ -48,8 +44,7 @@ http.Client createPlatformHttpClient() {
   httpClient.badCertificateCallback =
       (X509Certificate cert, String host, int port) => true;
 
-  _cachedClient = IOClient(httpClient);
-  return _cachedClient!;
+  return IOClient(httpClient);
 }
 
 void initAppHttpClient() {

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Verify Direct 4076x2380 Miyapur Alignment</title>
+  <style>
+    body { margin: 0; background: #222; color: #fff; font-family: sans-serif; }
+    #canvas { border: 2px solid #555; width: 100%; height: auto; }
+    #controls { padding: 10px; background: #333; position: sticky; top: 0; z-index: 10; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <h3>Direct 4076x2380 Miyapur Alignment Test</h3>
+    <div id="status">Loading...</div>
+    <button onclick="zoomToBays()">Zoom to Stabling Bays</button>
+    <button onclick="zoomFull()">Full View</button>
+  </div>
+  <canvas id="canvas" width="4076" height="2380"></canvas>
+
+  <script>
+    const miyapurMarkers = [
+      { id: 'MPSBL1BE', x: 1658.58, y: 688, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL2BE', x: 1651.79, y: 710.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL3BE', x: 1647.79, y: 728.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL4BE', x: 1644.79, y: 748.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL5BE', x: 1637.79, y: 775.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL6BE', x: 1633.79, y: 796.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL7BE', x: 1626.79, y: 814.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL8BE', x: 1620.79, y: 835.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL9BE', x: 1613.79, y: 860.38, w: 220.466, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL10BE', x: 1606.79, y: 879.38, w: 219.834, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL11BE', x: 1601.79, y: 899.38, w: 219.662, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL12BE', x: 1597.79, y: 922.38, w: 216.982, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL1OE', x: 1964.58, y: 782.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL2OE', x: 1957.79, y: 804.759, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL3OE', x: 1953.79, y: 822.759, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL4OE', x: 1950.79, y: 842.759, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL5OE', x: 1943.79, y: 869.759, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL6OE', x: 1939.79, y: 890.759, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL7OE', x: 1932.79, y: 908.759, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL8OE', x: 1930.79, y: 929.38, w: 220.521, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL9OE', x: 1928.38, y: 957.249, w: 211.579, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL10OE', x: 1924.71, y: 977.215, w: 208.112, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL11OE', x: 1922.15, y: 997.922, w: 205.57, h: 14.73, angle: 0.2822 },
+      { id: 'MPSBL12OE', x: 1916.63, y: 1020.48, w: 207.152, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL1BE', x: 1492.79, y: 1131.9, w: 214.758, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL2BE', x: 1485.79, y: 1162.9, w: 214.758, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL3BE', x: 1478.79, y: 1199.9, w: 214.758, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL4BE', x: 1471.79, y: 1226.9, w: 214.758, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL1OE', x: 1802.79, y: 1229.82, w: 213.799, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL2OE', x: 1795.79, y: 1257.82, w: 213.799, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL3OE', x: 1788.79, y: 1294.82, w: 213.799, h: 14.73, angle: 0.2822 },
+      { id: 'MPIBL4OE', x: 1780.79, y: 1320.82, w: 213.799, h: 14.73, angle: 0.2822 },
+      { id: 'MPWP1', x: 1813.79, y: 1032.58, w: 342.853, h: 14.73, angle: 0.2822 },
+      { id: 'MPTT1', x: 1728.24, y: 401, w: 670.587, h: 18.24, angle: 0.3149 },
+      { id: 'MPPW1', x: 1772.65, y: 1129.21, w: 229.478, h: 14.73, angle: 0.3205 },
+      { id: 'MPPW2', x: 1765.31, y: 1158.83, w: 229.478, h: 14.73, angle: 0.3205 }
+    ];
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+
+    const img = new Image();
+    img.onload = () => {
+      // 1. Direct 1:1 draw
+      ctx.drawImage(img, 0, 0, 4076, 2380);
+
+      // 2. Draw markers
+      for (const m of miyapurMarkers) {
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.rotate(m.angle);
+
+        const isSBL = m.id.includes('SBL');
+        const isIBL = m.id.includes('IBL');
+        const isTT = m.id.includes('TT');
+        const fillColor = isSBL ? 'rgba(255, 166, 51, 0.75)' :
+                          isIBL ? 'rgba(1, 230, 255, 0.75)' :
+                          isTT  ? 'rgba(134, 209, 5, 0.75)' : 'rgba(131, 81, 248, 0.75)';
+
+        ctx.fillStyle = fillColor;
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.fillRect(0, 0, m.w, m.h);
+        ctx.strokeRect(0, 0, m.w, m.h);
+
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.fillText(m.id, 5, m.h - 3);
+
+        ctx.restore();
+      }
+
+      status.textContent = 'DONE! Direct draw 4076x2380 verified.';
+    };
+
+    img.src = 'myp_depot_bg.png';
+
+    function zoomToBays() {
+      window.scrollTo({
+        left: (1600 / 4076) * canvas.offsetWidth,
+        top: (700 / 2380) * canvas.offsetHeight,
+        behavior: 'smooth'
+      });
+    }
+
+    function zoomFull() {
+      window.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

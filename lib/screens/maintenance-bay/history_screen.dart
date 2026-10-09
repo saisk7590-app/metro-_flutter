@@ -6,6 +6,7 @@ import '../../models/train_model.dart';
 import '../../providers/login_provider.dart';
 import '../../services/api_service.dart';
 import '../../widgets/common/custom_header.dart';
+import '../../widgets/maintenance-bay/history_widgets.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String initialDepot;
@@ -129,16 +130,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  String _value(Map<String, dynamic> row, List<String> keys) {
-    for (final key in keys) {
-      final value = row[key];
-      if (value != null && value.toString().trim().isNotEmpty) {
-        return value.toString();
-      }
-    }
-    return '—';
-  }
-
   String _depotName(String value) => value == '633' ? 'UPPAL' : 'MIYAPUR';
 
   @override
@@ -185,115 +176,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        SizedBox(
-                          width: 180,
-                          child: DropdownButtonFormField<String>(
-                            key: ValueKey('depot_$depot'),
-                            initialValue: depot.isEmpty ? '633' : depot,
-                            decoration: const InputDecoration(
-                              labelText: 'Depot',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: '633',
-                                child: Text('UPPAL'),
-                              ),
-                              DropdownMenuItem(
-                                value: '9373',
-                                child: Text('MIYAPUR'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) _selectDepot(value);
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          width: 220,
-                          child: DropdownButtonFormField<String>(
-                            key: ValueKey('bay_${depot}_${slotMap.length}'),
-                            initialValue: slotMap.containsKey(slot) ? slot : '',
-                            decoration: const InputDecoration(
-                              labelText: 'Bay',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: [
-                              const DropdownMenuItem(
-                                value: '',
-                                child: Text('All'),
-                              ),
-                              ...sortedSlotEntries.map(
-                                (entry) => DropdownMenuItem(
-                                  value: entry.key,
-                                  child: Text(entry.value),
-                                ),
-                              ),
-                            ],
-                            onChanged: (value) =>
-                                setState(() => slot = value ?? ''),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 220,
-                          child: DropdownButtonFormField<String>(
-                            key: ValueKey('train_${trainMap.length}'),
-                            initialValue: trainMap.containsKey(trainSet) ? trainSet : '',
-                            decoration: const InputDecoration(
-                              labelText: 'Trainset',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: [
-                              const DropdownMenuItem(
-                                value: '',
-                                child: Text('All'),
-                              ),
-                              ...trainMap.entries.map(
-                                (entry) => DropdownMenuItem(
-                                  value: entry.key,
-                                  child: Text(entry.value),
-                                ),
-                              ),
-                            ],
-                            onChanged: (value) =>
-                                setState(() => trainSet = value ?? ''),
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _pickDate(true),
-                          icon: const Icon(Icons.calendar_today),
-                          label: Text(
-                            dateFrom.isEmpty ? 'Date From' : dateFrom,
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _pickDate(false),
-                          icon: const Icon(Icons.calendar_today),
-                          label: Text(dateTo.isEmpty ? 'Date To' : dateTo),
-                        ),
-                        FilledButton.icon(
-                          onPressed: loadingHistory ? null : _search,
-                          icon: loadingHistory
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.search),
-                          label: const Text('Search'),
-                        ),
-                      ],
-                    ),
-                  ),
+                HistoryFilterBar(
+                  depot: depot,
+                  slot: slot,
+                  trainSet: trainSet,
+                  dateFrom: dateFrom,
+                  dateTo: dateTo,
+                  sortedSlotEntries: sortedSlotEntries,
+                  trainMap: trainMap,
+                  loadingHistory: loadingHistory,
+                  onDepotChanged: _selectDepot,
+                  onSlotChanged: (value) => setState(() => slot = value ?? ''),
+                  onTrainChanged: (value) => setState(() => trainSet = value ?? ''),
+                  onPickDateFrom: () => _pickDate(true),
+                  onPickDateTo: () => _pickDate(false),
+                  onSearch: _search,
                 ),
                 if (loadingOptions) const LinearProgressIndicator(),
                 if (error != null)
@@ -314,83 +211,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
                 if (records.isNotEmpty)
-                  Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('Bay')),
-                          DataColumn(label: Text('Trainset')),
-                          DataColumn(label: Text('Status')),
-                          DataColumn(label: Text('Purpose')),
-                          DataColumn(label: Text('Allocated On')),
-                          DataColumn(label: Text('Remarks')),
-                        ],
-                        rows: records.map((row) {
-                          return DataRow(
-                            cells: [
-                              DataCell(
-                                Text(
-                                  _value(row, [
-                                    'mbh_slot_name',
-                                    'mbaSlotName',
-                                    'slotName',
-                                    'mbSlotName',
-                                  ]),
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  _value(row, [
-                                    'mbh_train_set_name',
-                                    'mbaTrainSetName',
-                                    'trainSetName',
-                                  ]),
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  _value(row, [
-                                    'mbh_status_name',
-                                    'mbaStatusName',
-                                    'statusName',
-                                  ]),
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  _value(row, [
-                                    'mbh_purpose_name',
-                                    'mbaPurposeName',
-                                    'purposeName',
-                                  ]),
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  _value(row, [
-                                    'mbh_inward',
-                                    'created_on',
-                                    'mbaAllocatedOn',
-                                  ]),
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  _value(row, [
-                                    'mbh_remarks',
-                                    'mbaRemarks',
-                                    'remarks',
-                                  ]),
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
+                  HistoryDataTable(records: records),
                 if (depot.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),

@@ -5,6 +5,7 @@ import '../../models/trainset_meter_reading_model.dart';
 import 'package:provider/provider.dart';
 import '../../providers/trainset_meter_reading_provider.dart';
 import '../../providers/login_provider.dart';
+import '../../screens/auth/login_screen.dart';
 
 import 'date_search_bar.dart';
 import 'meter_bottom_sheet.dart';
@@ -22,7 +23,7 @@ class TrainsetTable extends StatefulWidget {
 }
 
 class _TrainsetTableState extends State<TrainsetTable> {
-  DateTime selectedDate = DateTime.now();
+  DateTime? selectedDate;
 
   int itemsPerPage = 10;
   int currentPage = 1;
@@ -79,11 +80,13 @@ class _TrainsetTableState extends State<TrainsetTable> {
             ? loginData.roleIds.split(',').first.trim()
             : ApiService.currentRoleId ?? '1');
     if (token.isEmpty) return;
-    final date = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    ).toIso8601String().split('.').first;
+    final date = selectedDate != null
+        ? DateTime(
+            selectedDate!.year,
+            selectedDate!.month,
+            selectedDate!.day,
+          ).toIso8601String().split('.').first
+        : '';
     try {
       final results = await context
           .read<TrainsetMeterReadingProvider>()
@@ -128,25 +131,38 @@ class _TrainsetTableState extends State<TrainsetTable> {
   }
 
   Future<void> _loadReadings() async {
-    final loginData = context.read<LoginProvider>().loginData;
+    final loginProvider = context.read<LoginProvider>();
+    var loginData = loginProvider.loginData;
+    if (loginData == null && await LoginProvider.hasSavedBiometricSession()) {
+      if (!mounted) return;
+      await loginProvider.restoreSavedSession();
+      if (!mounted) return;
+      loginData = loginProvider.loginData;
+    }
+
     final token = loginData?.token ?? ApiService.currentToken ?? '';
     final userSession = loginData?.encodedUserSession ?? ApiService.currentUserSession ?? '';
-    final roleId = context.read<LoginProvider>().selectedRoleId ??
+    final roleId = loginProvider.selectedRoleId ??
         (loginData != null && loginData.roleIds.isNotEmpty
             ? loginData.roleIds.split(',').first.trim()
             : ApiService.currentRoleId ?? '1');
 
     if (token.isEmpty) {
+      context.read<TrainsetMeterReadingProvider>().setErrorMessage(
+        'Authentication required. Please log in to view meter readings.',
+      );
       return;
     }
 
     logTokenDiagnostics('after LoginProvider retrieval', token);
 
-    final date = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    ).toIso8601String().split('.').first;
+    final date = selectedDate != null
+        ? DateTime(
+            selectedDate!.year,
+            selectedDate!.month,
+            selectedDate!.day,
+          ).toIso8601String().split('.').first
+        : '';
 
     await context.read<TrainsetMeterReadingProvider>().getTrainsetMeterReadings(
       date: date,
@@ -163,8 +179,8 @@ class _TrainsetTableState extends State<TrainsetTable> {
     final picked = await showDialog<DateTime>(
       context: context,
       builder: (context) => WebsiteDatePicker(
-        initialDate: selectedDate,
-        firstDate: DateTime(2025),
+        initialDate: selectedDate ?? DateTime.now(),
+        firstDate: DateTime(2020),
         lastDate: DateTime(2100),
       ),
     );
@@ -173,7 +189,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
       searchDebounce?.cancel();
       searchController.clear();
       setState(() {
-        selectedDate = picked;
+        selectedDate = (picked.year == 1900) ? null : picked;
         searchText = '';
         searchMatches = [];
         searchLoading = false;
@@ -246,7 +262,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
                     searchDebounce?.cancel();
 
                     setState(() {
-                      selectedDate = DateTime.now();
+                      selectedDate = null;
                       searchText = '';
                       searchMatches = [];
                       searchLoading = false;
@@ -283,7 +299,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
                   child: provider.isLoading || searchLoading
                       ? const Center(child: CircularProgressIndicator())
                       : provider.errorMessage != null
-                      ? Center(child: Text(provider.errorMessage!))
+                      ? _buildErrorView(provider.errorMessage!)
                       : visibleRows.isEmpty
                       ? Center(
                           child: Text(
@@ -308,8 +324,14 @@ class _TrainsetTableState extends State<TrainsetTable> {
                               previousStatus: row.previousDateReading,
                               currentStatus: row.todayReading,
                               onEdit: () async {
-                                MeterBottomSheet.selectedTrainsetId =
-                                    row.assetId;
+                                final editDate = selectedDate != null
+                                    ? DateTime(
+                                        selectedDate!.year,
+                                        selectedDate!.month,
+                                        selectedDate!.day,
+                                      ).toIso8601String().split('.').first
+                                    : DateTime.now().toIso8601String().split('.').first;
+
                                 final result =
                                     await showModalBottomSheet<String>(
                                   context: context,
@@ -317,13 +339,10 @@ class _TrainsetTableState extends State<TrainsetTable> {
                                   backgroundColor: Colors.transparent,
                                   builder: (_) {
                                     return MeterBottomSheet(
+                                      trainsetId: row.assetId,
                                       trainset: row.assetNo,
                                       location: row.locationCode,
-                                      date: DateTime(
-                                        selectedDate.year,
-                                        selectedDate.month,
-                                        selectedDate.day,
-                                      ).toIso8601String().split('.').first,
+                                      date: editDate,
                                     );
                                   },
                                 );
@@ -386,6 +405,69 @@ class _TrainsetTableState extends State<TrainsetTable> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorView(String msg) {
+    final isSessionError = msg.contains('401') ||
+        msg.toLowerCase().contains('unauthorized') ||
+        msg.toLowerCase().contains('session expired') ||
+        msg.toLowerCase().contains('token expired') ||
+        msg.toLowerCase().contains('authentication required');
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSessionError ? Icons.lock_clock_outlined : Icons.cloud_off_rounded,
+              size: 48,
+              color: isSessionError ? Colors.amber.shade800 : Colors.red.shade400,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isSessionError ? "Session Expired" : "Unable to Fetch Meter Readings",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              msg,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _loadReadings,
+                  icon: const Icon(Icons.refresh, size: 16),
+                  label: const Text("Retry"),
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  },
+                  icon: const Icon(Icons.login, size: 16),
+                  label: const Text("Log In Again"),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

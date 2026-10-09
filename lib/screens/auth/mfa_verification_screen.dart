@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/auth/login_model.dart';
 import '../../services/api_service.dart';
 import '../../providers/login_provider.dart';
-import '../../navigation/main_navigation_screen.dart';
+import '../../navigation/maintenance_bay_navigation_screen.dart';
 import 'role_selection_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -84,7 +84,7 @@ class _MfaVerificationScreenState extends State<MfaVerificationScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        MaterialPageRoute(builder: (_) => const MaintenanceBayNavigationScreen()),
       );
     }
   }

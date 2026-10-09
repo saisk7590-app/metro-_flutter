@@ -8,8 +8,8 @@ class MeterValidation {
   //--------------------------------------------------
 
   static bool isReadingValid({
-    required int previousReading,
-    required int? currentReading,
+    required num previousReading,
+    required num? currentReading,
     bool isReset = false,
   }) {
     if (currentReading == null) {
@@ -27,9 +27,9 @@ class MeterValidation {
   // Net Reading
   //--------------------------------------------------
 
-  static int calculateNetReading({
-    required int previousReading,
-    required int? currentReading,
+  static num calculateNetReading({
+    required num previousReading,
+    required num? currentReading,
     bool isReset = false,
   }) {
     if (currentReading == null) {
@@ -52,8 +52,8 @@ class MeterValidation {
   //--------------------------------------------------
 
   static String? readingError({
-    required int previousReading,
-    required int? currentReading,
+    required num previousReading,
+    required num? currentReading,
     bool isReset = false,
   }) {
     if (currentReading == null) {

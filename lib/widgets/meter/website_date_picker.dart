@@ -94,6 +94,11 @@ class _WebsiteDatePickerState extends State<WebsiteDatePicker> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
+                    onPressed: () => Navigator.pop(context, DateTime(1900, 1, 1)),
+                    child: const Text('ALL DATES'),
+                  ),
+                  const Spacer(),
+                  TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text('CANCEL'),
                   ),

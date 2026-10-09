@@ -77,7 +77,7 @@ class _MeterDetailsState extends State<MeterDetails> {
 
         TextField(
           controller: currentReadingController,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: "Current Reading",
             border: const OutlineInputBorder(),
@@ -85,7 +85,7 @@ class _MeterDetailsState extends State<MeterDetails> {
             errorText: errorText,
           ),
           onChanged: (value) {
-            widget.meter.currentReading = int.tryParse(value);
+            widget.meter.currentReading = double.tryParse(value);
             _updateMeter();
           },
         ),
@@ -114,7 +114,7 @@ class _MeterDetailsState extends State<MeterDetails> {
               ),
               const SizedBox(height: 6),
               Text(
-                "${widget.meter.netReading} kWh",
+                "${widget.meter.netReading == widget.meter.netReading.roundToDouble() ? widget.meter.netReading.toInt() : widget.meter.netReading.toStringAsFixed(2)} kWh",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -228,7 +228,7 @@ class _MeterDetailsState extends State<MeterDetails> {
           _infoRow(
             Icons.speed_outlined,
             "Previous Reading",
-            "${widget.meter.previousReading} kWh",
+            "${widget.meter.previousReading == widget.meter.previousReading.roundToDouble() ? widget.meter.previousReading.toInt() : widget.meter.previousReading.toStringAsFixed(2)} kWh",
           ),
         ],
       ),

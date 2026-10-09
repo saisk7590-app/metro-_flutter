@@ -8,6 +8,9 @@ import 'package:metro_flutter/providers/maintenance_bay_provider.dart';
 import 'package:metro_flutter/providers/active_trains_provider.dart';
 import 'package:metro_flutter/providers/login_provider.dart';
 import 'package:metro_flutter/providers/trainset_meter_reading_provider.dart';
+import 'package:metro_flutter/providers/checklist_provider.dart';
+import 'package:metro_flutter/providers/notification_provider.dart';
+import 'package:metro_flutter/providers/profile_provider.dart';
 
 import 'package:metro_flutter/screens/auth/login_screen.dart';
 import 'package:metro_flutter/screens/auth/biometric_unlock_screen.dart';
@@ -34,6 +37,12 @@ void main() async {
       ChangeNotifierProvider(create: (_) => LoginProvider()),
       // Trainset Meter Reading Provider
       ChangeNotifierProvider(create: (_) => TrainsetMeterReadingProvider()),
+      // Checklist Provider (Technician Mobile Direct Entry & Real-time Sync)
+      ChangeNotifierProvider(create: (_) => ChecklistProvider()),
+      // Notification Provider (Real-time live notifications from messaging API)
+      ChangeNotifierProvider(create: (_) => NotificationProvider()),
+      // Profile Provider (Live staff profile details from admin API)
+      ChangeNotifierProvider(create: (_) => ProfileProvider()),
     ],
     child: MyApp(hasBiometricSession: hasBiometricSession),
   );

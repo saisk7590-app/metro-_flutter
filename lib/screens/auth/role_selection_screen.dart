@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/auth/login_model.dart';
 import '../../providers/login_provider.dart';
-import '../../navigation/main_navigation_screen.dart';
+import '../../navigation/maintenance_bay_navigation_screen.dart';
 import 'package:provider/provider.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -39,7 +39,7 @@ class RoleSelectionScreen extends StatelessWidget {
       if (!context.mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        MaterialPageRoute(builder: (_) => const MaintenanceBayNavigationScreen()),
       );
     }
 

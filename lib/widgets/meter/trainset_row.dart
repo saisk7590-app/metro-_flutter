@@ -134,11 +134,11 @@ class TrainsetRow extends StatelessWidget {
               child: Center(
                 child: IconButton(
                   icon: const Icon(Icons.edit_square, size: 20),
-                  color: canEdit ? theme.primaryColor : colors.outline,
+                  color: canEdit ? theme.primaryColor : colors.primary.withValues(alpha: 0.6),
                   tooltip: canEdit
                       ? "Edit meter readings"
-                      : "Previous Day Status must be Green to edit",
-                  onPressed: canEdit ? onEdit : null,
+                      : "Previous status: $previousStatus (Click to view/enter readings)",
+                  onPressed: onEdit,
                 ),
               ),
             ),
@@ -226,13 +226,13 @@ class TrainsetRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: IconButton(
-                    onPressed: canEdit ? onEdit : null,
+                    onPressed: onEdit,
                     tooltip: canEdit
                         ? "Edit meter readings"
-                        : "Previous Day Status must be Green to edit",
+                        : "Previous status: $previousStatus (Click to view/enter readings)",
                     icon: Icon(
                       Icons.edit_square,
-                      color: canEdit ? theme.primaryColor : colors.outline,
+                      color: canEdit ? theme.primaryColor : colors.primary.withValues(alpha: 0.6),
                     ),
                   ),
                 ),

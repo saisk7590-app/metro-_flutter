@@ -5,17 +5,13 @@ class MeterReading {
   final String meterName;
   final String assetNumber;
   final String previousDate;
-  final int previousReading;
+  final double previousReading;
   final num cumulativeReading;
 
-  int? currentReading;
-
+  double? currentReading;
   String remarks;
-
   bool reset;
-
   String resetRemarks;
-
   bool isCompleted;
 
   MeterReading({
@@ -35,15 +31,15 @@ class MeterReading {
   });
 
   /// Net Consumption
-  int get netReading {
-    if (currentReading == null) return 0;
+  double get netReading {
+    if (currentReading == null) return 0.0;
 
     if (reset) {
       return currentReading!;
     }
 
     if (currentReading! < previousReading) {
-      return 0;
+      return 0.0;
     }
 
     return currentReading! - previousReading;
@@ -74,7 +70,7 @@ class MeterReading {
       "TrainsetId": trainsetId,
       "MeterReaidngDate": date,
       "MeterId": meterId,
-      "CurrentReading": currentReading ?? 0,
+      "CurrentReading": currentReading ?? 0.0,
       "Remarks": remarks,
       "Reset": reset ? 1 : 0,
       "ResetRemarks": resetRemarks,
@@ -103,4 +99,5 @@ class MeterReading {
     };
   }
 }
+
 

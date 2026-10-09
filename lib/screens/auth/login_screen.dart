@@ -5,7 +5,7 @@ import '../../theme/spacing.dart';
 import '../../providers/login_provider.dart';
 import '../../services/api_service.dart';
 import '../../models/auth/login_model.dart';
-import '../../navigation/main_navigation_screen.dart';
+import '../../navigation/maintenance_bay_navigation_screen.dart';
 import 'biometric_unlock_screen.dart';
 import 'mfa_verification_screen.dart';
 import 'role_selection_screen.dart';
@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        MaterialPageRoute(builder: (_) => const MaintenanceBayNavigationScreen()),
       );
     }
   }

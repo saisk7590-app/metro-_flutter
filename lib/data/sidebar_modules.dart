@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/sidebar_module.dart';
 
-import '../navigation/main_navigation_screen.dart';
+import '../navigation/maintenance_bay_navigation_screen.dart';
+import '../navigation/wheel_measurements_navigation_screen.dart';
 import '../navigation/meter_navigation_screen.dart';
 import '../navigation/checklist_navigation_screen.dart';
 
@@ -13,7 +14,15 @@ const List<SidebarModule> sidebarModules = [
     subtitle: 'Manage train allocation in depot bays',
     icon: Icons.train_rounded,
     color: Colors.blue,
-    page: MainNavigationScreen(),
+    page: MaintenanceBayNavigationScreen(),
+  ),
+  SidebarModule(
+    id: 'wheel_measurements',
+    title: 'WHEEL MEASUREMENT',
+    subtitle: 'Digital Wheel Gauge & Profiling',
+    icon: Icons.radio_button_checked,
+    color: Colors.indigo,
+    page: WheelMeasurementsNavigationScreen(),
   ),
   SidebarModule(
     id: 'meter',
@@ -25,8 +34,8 @@ const List<SidebarModule> sidebarModules = [
   ),
   SidebarModule(
     id: 'checklist',
-    title: 'Checklist Module',
-    subtitle: 'Inspection Checklist',
+    title: 'CHECKLIST MODULE',
+    subtitle: 'Config Maintenance & Checksheets',
     icon: Icons.fact_check,
     color: Colors.deepOrange,
     page: ChecklistNavigationScreen(),
