@@ -114,8 +114,8 @@
 | 66 | `items_per_page_dropdown.dart` | `widgets/meter` | **74** | Modular Widget (< 300) |
 | 67 | `depot_map_header.dart` | `widgets/map` | **73** | Modular Widget (< 300) |
 | 68 | `ams_update_popup_footer.dart` | `widgets/popups` | **67** | Modular Widget (< 300) |
-| 69 | `meter_expansion_tile.dart` | `widgets/meter` | **58** | Modular Widget (< 300) |
-| 70 | `login_logo.dart` | `widgets/auth/login` | **47** | Modular Widget (< 300) |
+| 69 | `login_logo.dart` | `widgets/auth/login` | **60** | Modular Widget (< 300) |
+| 70 | `meter_expansion_tile.dart` | `widgets/meter` | **58** | Modular Widget (< 300) |
 | 71 | `sidebar_logout.dart` | `widgets/sidebar` | **45** | Modular Widget (< 300) |
 | 72 | `security_notice.dart` | `widgets/auth/login` | **44** | Modular Widget (< 300) |
 | 73 | `delete_checklist_dialog.dart` | `widgets/checklist` | **36** | Modular Widget (< 300) |

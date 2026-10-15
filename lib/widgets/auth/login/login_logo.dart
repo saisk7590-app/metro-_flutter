@@ -41,6 +41,19 @@ class LoginLogo extends StatelessWidget {
             ),
           ),
         ),
+
+        const SizedBox(height: 2),
+
+        Center(
+          child: Text(
+            "Asset Management System",
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.70),
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
       ],
     );
   }
