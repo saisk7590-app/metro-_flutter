@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import '../../models/wheel_measurement_model.dart';
+﻿import 'package:flutter/material.dart';
+import '../../models/wheel/wheel_measurement_model.dart';
 import '../../widgets/common/custom_header.dart';
 import '../../widgets/wheel_measurements/wheel_tolerance_widgets.dart';
 

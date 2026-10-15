@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
-import '../models/sidebar_module.dart';
+import '../models/navigation/sidebar_module.dart';
 
 import '../navigation/maintenance_bay_navigation_screen.dart';
 import '../navigation/wheel_measurements_navigation_screen.dart';

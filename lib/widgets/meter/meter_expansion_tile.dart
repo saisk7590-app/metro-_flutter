@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
-import '../../models/meter_reading.dart';
+import '../../models/meter/meter_reading.dart';
 import 'meter_details.dart';
 
 class MeterExpansionTile extends StatelessWidget {

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/checklist_provider.dart';
+import '../../../providers/checklist/checklist_provider.dart';
 
 /// Modal dialog to add a new group to a checklist matching `AddChecklistGroupComponent`
 class AddChecklistGroupDialog extends StatefulWidget {

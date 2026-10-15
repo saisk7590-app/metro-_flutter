@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/checklist_provider.dart';
+import '../../providers/checklist/checklist_provider.dart';
 
 /// Filter bar matching NxAMS Website Config Maintenance > Checklists filters:
 /// Category, Jobplan, Checklist, Status, and Search/Reset actions.

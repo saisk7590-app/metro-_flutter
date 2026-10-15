@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/active_trains_provider.dart';
-import '../../providers/maintenance_bay_provider.dart';
+import '../../providers/maintenance_bay/active_trains_provider.dart';
+import '../../providers/maintenance_bay/maintenance_bay_provider.dart';
 import '../../constants/map_data.dart';
 
 class SectionButtons extends StatelessWidget {

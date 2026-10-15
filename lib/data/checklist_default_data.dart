@@ -1,0 +1,320 @@
+﻿import '../models/checklist/checklist_model.dart';
+
+/// Default mock and fallback datasets for checklist management.
+class ChecklistDefaultData {
+  static List<JobPlanChecklistModel> generateDefaultConfigChecklists() {
+    return [
+      JobPlanChecklistModel(
+        jpcId: 1,
+        jobplanId: 101,
+        jobplanName: 'Daily Inspection',
+        jobplanCode: 'JP-DAILY-01',
+        jpcChecklistName: 'Daily Train Inspection',
+        scheduleId: 71,
+        scheduleCode: 'SCH-DAY',
+        scheduleName: 'Every Day',
+        assetCategoryCode: 'Rolling Stock',
+        unitCode: 'Rolling Stock',
+        jpcStatus: 1,
+        jpcCategory: 1,
+      ),
+      JobPlanChecklistModel(
+        jpcId: 2,
+        jobplanId: 102,
+        jobplanName: 'Weekly Bogie & Brake PM',
+        jobplanCode: 'JP-WK-02',
+        jpcChecklistName: 'Brake & Bogie Inspection',
+        scheduleId: 72,
+        scheduleCode: 'SCH-WEEK',
+        scheduleName: 'Weekly',
+        assetCategoryCode: 'Rolling Stock',
+        unitCode: 'Rolling Stock',
+        jpcStatus: 1,
+        jpcCategory: 1,
+      ),
+      JobPlanChecklistModel(
+        jpcId: 3,
+        jobplanId: 103,
+        jobplanName: 'Monthly HV & Traction Check',
+        jobplanCode: 'JP-MO-03',
+        jpcChecklistName: 'Pantograph & Traction HV Check',
+        scheduleId: 73,
+        scheduleCode: 'SCH-MONTH',
+        scheduleName: 'Monthly',
+        assetCategoryCode: 'Electrical & Traction',
+        unitCode: 'Rolling Stock',
+        jpcStatus: 1,
+        jpcCategory: 3,
+      ),
+      JobPlanChecklistModel(
+        jpcId: 4,
+        jobplanId: 104,
+        jobplanName: 'Passenger Saloon Routine',
+        jobplanCode: 'JP-SAL-04',
+        jpcChecklistName: 'Doors, HVAC & Saloon Safety Check',
+        scheduleId: 74,
+        scheduleCode: 'SCH-FORT',
+        scheduleName: 'Fortnightly',
+        assetCategoryCode: 'Rolling Stock',
+        unitCode: 'Rolling Stock',
+        jpcStatus: 1,
+        jpcCategory: 1,
+      ),
+      JobPlanChecklistModel(
+        jpcId: 5,
+        jobplanId: 105,
+        jobplanName: 'Track Geometry Check',
+        jobplanCode: 'JP-TRK-05',
+        jpcChecklistName: 'Depot Track & Stabling Turnout Check',
+        scheduleId: 75,
+        scheduleCode: 'SCH-QTR',
+        scheduleName: 'Quarterly',
+        assetCategoryCode: 'Track & Permanent Way',
+        unitCode: 'Civil & Track',
+        jpcStatus: 1,
+        jpcCategory: 4,
+      ),
+    ];
+  }
+
+  static List<CheckGroupModel> generateDefaultChecklistGroups(String checklistTitle) {
+    return [
+      CheckGroupModel(
+        group: '1. Bogie & Suspension System',
+        groupId: 1,
+        expand: true,
+        checks: [
+          CheckItemModel(
+            id: 101,
+            subGroup: 'Axle Box',
+            checkDescription: 'Inspect axle box covers for grease leakage, loose bolts, and crack marks.',
+            compliance: 2,
+            remarks: 'Clean & intact. Bolts torqued.',
+          ),
+          CheckItemModel(
+            id: 102,
+            subGroup: 'Primary Suspension',
+            checkDescription: 'Check primary rubber chevron springs for tearing, bulging, or oil contamination.',
+            compliance: 2,
+            remarks: 'Normal elasticity, no damage.',
+          ),
+          CheckItemModel(
+            id: 103,
+            subGroup: 'Air Spring (Secondary)',
+            checkDescription: 'Inspect air spring bellow pressure, leveling valve linkages, and emergency spring rubber.',
+            compliance: 2,
+            remarks: 'Pressure within 4.2 bar normal range.',
+          ),
+          CheckItemModel(
+            id: 104,
+            subGroup: 'Yaw Dampers',
+            checkDescription: 'Check hydraulic vertical and yaw dampers for oil leakage and mounting bushing wear.',
+            compliance: 1,
+            remarks: 'Slight oil weeping observed on WS-2 RHS damper.',
+          ),
+        ],
+      ),
+      CheckGroupModel(
+        group: '2. Brake System & Pneumatics',
+        groupId: 2,
+        expand: true,
+        checks: [
+          CheckItemModel(
+            id: 201,
+            subGroup: 'Brake Calipers & Pads',
+            checkDescription: 'Measure brake pad thickness (min 5mm) and check pad carrier retaining pins.',
+            compliance: 2,
+            remarks: 'All pads > 18mm thickness.',
+          ),
+          CheckItemModel(
+            id: 202,
+            subGroup: 'Brake Disc',
+            checkDescription: 'Check brake disc friction face for thermal cracks, scoring grooves, and mounting security.',
+            compliance: 2,
+            remarks: 'Normal surface condition.',
+          ),
+          CheckItemModel(
+            id: 203,
+            subGroup: 'Air Reservoir & Pipes',
+            checkDescription: 'Drain condensation from main reservoir and verify pneumatic pipe couplings for air leakage.',
+            compliance: 2,
+            remarks: 'Condensate drained. No audible leaks.',
+          ),
+          CheckItemModel(
+            id: 204,
+            subGroup: 'Parking Brake',
+            checkDescription: 'Test parking brake manual release mechanism and indicator flags on both DMC cabs.',
+            compliance: 2,
+            remarks: 'Releases and locks positively.',
+          ),
+        ],
+      ),
+      CheckGroupModel(
+        group: '3. Pantograph & Roof High Voltage',
+        groupId: 3,
+        expand: true,
+        checks: [
+          CheckItemModel(
+            id: 301,
+            subGroup: 'Collector Strips',
+            checkDescription: 'Inspect carbon strip wear limit, surface chips, and copper bridge grounding wires.',
+            compliance: 2,
+            remarks: 'Carbon wear remaining: 12mm.',
+          ),
+          CheckItemModel(
+            id: 302,
+            subGroup: 'Pneumatic Actuator',
+            checkDescription: 'Verify pantograph raising and lowering time (Raising: 6-8s, Lowering: 4-6s).',
+            compliance: 2,
+            remarks: 'Tested: Raise 6.8s, Lower 4.5s.',
+          ),
+          CheckItemModel(
+            id: 303,
+            subGroup: 'Roof Insulators',
+            checkDescription: 'Clean and inspect 25kV roof surge arrestor and porcelain insulators for flashover cracks.',
+            compliance: 2,
+            remarks: 'Insulators cleaned and wiped.',
+          ),
+        ],
+      ),
+      CheckGroupModel(
+        group: '4. Passenger Saloon & Doors',
+        groupId: 4,
+        expand: false,
+        checks: [
+          CheckItemModel(
+            id: 401,
+            subGroup: 'Door Mechanism',
+            checkDescription: 'Test door opening/closing cycle, obstacle detection bounce (with 10mm test bar).',
+            compliance: 2,
+            remarks: 'Sensitive edge responsive.',
+          ),
+          CheckItemModel(
+            id: 402,
+            subGroup: 'Emergency Egress',
+            checkDescription: 'Verify passenger emergency door release handles (PEDR) seal and electrical feedback.',
+            compliance: 2,
+            remarks: 'Seals intact on all 8 doors.',
+          ),
+          CheckItemModel(
+            id: 403,
+            subGroup: 'Saloon HVAC & Filters',
+            checkDescription: 'Check saloon airflow temperature differential and return air filter cleanliness.',
+            compliance: 2,
+            remarks: 'Air temp 23°C setpoint reached.',
+          ),
+        ],
+      ),
+      CheckGroupModel(
+        group: '5. Coupler & Safety Systems',
+        groupId: 5,
+        expand: false,
+        checks: [
+          CheckItemModel(
+            id: 501,
+            subGroup: 'Auto Coupler',
+            checkDescription: 'Inspect Scharfenberg coupler head, electrical head contacts, and mechanical latching pin.',
+            compliance: 2,
+            remarks: 'Contacts clean and greased.',
+          ),
+          CheckItemModel(
+            id: 502,
+            subGroup: 'Underframe Equipment',
+            checkDescription: 'Inspect safety loops on traction motors and gearbox torque arm brackets for tightness.',
+            compliance: 2,
+            remarks: 'Torque seal marks intact.',
+          ),
+        ],
+      ),
+    ];
+  }
+
+  static List<ChecklistWorkOrder> generateDefaultDepotWorkOrders() {
+    return [
+      ChecklistWorkOrder(
+        id: 1001,
+        no: 'WO-2024-0101',
+        type: 'Preventive',
+        unit: 'Rolling Stock',
+        assetDetails: 'TS-01',
+        description: 'Daily Pre-Service Inspection & Safety Check',
+        priority: 'High',
+        status: 'In Progress',
+        location: 'Bay 01 - Track 1',
+        schedule: 'Daily Inspection',
+        plannedFrom: '2026-10-08 06:00',
+        totalChecks: 18,
+        completedChecks: 14,
+      ),
+      ChecklistWorkOrder(
+        id: 1002,
+        no: 'WO-2024-0102',
+        type: 'Preventive',
+        unit: 'Rolling Stock',
+        assetDetails: 'TS-03',
+        description: 'Weekly Bogie, Brake & Pneumatic Inspection',
+        priority: 'Medium',
+        status: 'Assigned',
+        location: 'Bay 03 - Track 2',
+        schedule: 'Weekly PM',
+        plannedFrom: '2026-10-08 08:30',
+        totalChecks: 22,
+        completedChecks: 5,
+      ),
+      ChecklistWorkOrder(
+        id: 1003,
+        no: 'WO-2024-0103',
+        type: 'Preventive',
+        unit: 'Rolling Stock',
+        assetDetails: 'TS-07',
+        description: 'Monthly Pantograph, Traction & Roof Equipment Check',
+        priority: 'High',
+        status: 'Assigned',
+        location: 'Bay 05 - Stabling',
+        schedule: 'Monthly PM',
+        plannedFrom: '2026-10-08 11:00',
+        totalChecks: 20,
+        completedChecks: 0,
+      ),
+      ChecklistWorkOrder(
+        id: 1004,
+        no: 'WO-2024-0104',
+        type: 'Corrective',
+        unit: 'Rolling Stock',
+        assetDetails: 'TS-12',
+        description: 'Door Obstacle Detection & Passenger Saloon HVAC Check',
+        priority: 'Urgent',
+        status: 'In Progress',
+        location: 'IBL Bay - Line 4',
+        schedule: 'Corrective Check',
+        plannedFrom: '2026-10-08 13:00',
+        totalChecks: 12,
+        completedChecks: 8,
+      ),
+    ];
+  }
+
+  static const List<ChecklistCategoryItem> defaultCategoryItems = [
+    ChecklistCategoryItem(code: '1', value: 'RS'),
+    ChecklistCategoryItem(code: '2', value: 'S&T'),
+    ChecklistCategoryItem(code: '3', value: 'Traction'),
+    ChecklistCategoryItem(code: '4', value: 'Track'),
+    ChecklistCategoryItem(code: '5', value: 'Civil'),
+  ];
+
+  static const List<ChecklistJobPlanItem> defaultJobPlanItems = [
+    ChecklistJobPlanItem(jobPlanId: 101, jobPlanName: 'Daily Inspection'),
+    ChecklistJobPlanItem(jobPlanId: 102, jobPlanName: 'Weekly Bogie & Brake PM'),
+    ChecklistJobPlanItem(jobPlanId: 103, jobPlanName: 'Monthly HV & Traction Check'),
+    ChecklistJobPlanItem(jobPlanId: 104, jobPlanName: 'Passenger Saloon Routine'),
+    ChecklistJobPlanItem(jobPlanId: 105, jobPlanName: 'Track Geometry Check'),
+  ];
+
+  static const List<ChecklistNameItem> defaultChecklistNameItems = [
+    ChecklistNameItem(id: 1, name: 'Daily Train Inspection'),
+    ChecklistNameItem(id: 2, name: 'Brake & Bogie Inspection'),
+    ChecklistNameItem(id: 3, name: 'Pantograph & Traction HV Check'),
+    ChecklistNameItem(id: 4, name: 'Doors, HVAC & Saloon Safety Check'),
+    ChecklistNameItem(id: 5, name: 'Depot Track & Stabling Turnout Check'),
+  ];
+}

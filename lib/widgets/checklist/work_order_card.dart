@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import '../../models/checklist_model.dart';
+﻿import 'package:flutter/material.dart';
+import '../../models/checklist/checklist_model.dart';
 
 class WorkOrderCard extends StatelessWidget {
   final ChecklistWorkOrder workOrder;

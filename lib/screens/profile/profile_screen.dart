@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/login_provider.dart';
-import '../../providers/profile_provider.dart';
+import '../../providers/auth/login_provider.dart';
+import '../../providers/auth/profile_provider.dart';
 import '../../widgets/profile/edit_profile_dialog.dart';
+import '../../widgets/profile/profile_detail_sections.dart';
 import '../../widgets/profile/profile_header_card.dart';
-import '../../widgets/profile/profile_info_tiles.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -158,99 +158,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // Contact Details Card
-              ProfileSectionCard(
-                title: 'Contact Information',
-                icon: Icons.contact_mail_outlined,
-                items: [
-                  ProfileInfoTile(
-                    icon: Icons.email_outlined,
-                    label: 'Email Address',
-                    value: email,
-                    onTap: () => EditProfileDialog.show(
-                      context,
-                      currentEmail: email,
-                      currentMobile: mobile,
-                    ),
-                  ),
-                  ProfileInfoTile(
-                    icon: Icons.phone_outlined,
-                    label: 'Mobile Number',
-                    value: mobile,
-                    onTap: () => EditProfileDialog.show(
-                      context,
-                      currentEmail: email,
-                      currentMobile: mobile,
-                    ),
-                  ),
-                  if (address.isNotEmpty)
-                    ProfileInfoTile(
-                      icon: Icons.home_outlined,
-                      label: 'Office / Depot Address',
-                      value: address,
-                    ),
-                ],
-              ),
-
-              // Staff & Assignment Card
-              ProfileSectionCard(
-                title: 'Employment & Role',
-                icon: Icons.badge_outlined,
-                items: [
-                  ProfileInfoTile(
-                    icon: Icons.numbers,
-                    label: 'Staff ID / Number',
-                    value: staffNo,
-                  ),
-                  ProfileInfoTile(
-                    icon: Icons.work_outline,
-                    label: 'Designation',
-                    value: liveProfile?.designationName.isNotEmpty == true
-                        ? liveProfile!.designationName
-                        : roleName,
-                  ),
-                  ProfileInfoTile(
-                    icon: Icons.business_outlined,
-                    label: 'Assigned Unit',
-                    value: unitName,
-                  ),
-                  ProfileInfoTile(
-                    icon: Icons.pin_drop_outlined,
-                    label: 'Depot Location',
-                    value: locationName,
-                  ),
-                  if (liveProfile?.vendorName.isNotEmpty == true)
-                    ProfileInfoTile(
-                      icon: Icons.domain,
-                      label: 'Organization / Vendor',
-                      value: liveProfile!.vendorName,
-                    ),
-                ],
-              ),
-
-              // Account & Security Card
-              ProfileSectionCard(
-                title: 'Account Security',
-                icon: Icons.security_outlined,
-                items: [
-                  ProfileInfoTile(
-                    icon: Icons.account_circle_outlined,
-                    label: 'Username',
-                    value: loginData?.userName ?? '—',
-                  ),
-                  ProfileInfoTile(
-                    icon: Icons.schedule_outlined,
-                    label: 'Last Login',
-                    value: loginData?.lastLogin ?? '—',
-                  ),
-                  ProfileInfoTile(
-                    icon: Icons.verified_user_outlined,
-                    label: 'Session ID',
-                    value: loginData?.userSessionId.toString().isNotEmpty == true
-                        ? '#${loginData!.userSessionId}'
-                        : 'Active',
-                  ),
-                ],
+              // Profile Details Sections
+              ProfileDetailSections(
+                email: email,
+                mobile: mobile,
+                address: address,
+                staffNo: staffNo,
+                designation: liveProfile?.designationName.isNotEmpty == true
+                    ? liveProfile!.designationName
+                    : roleName,
+                unitName: unitName,
+                locationName: locationName,
+                vendorName: liveProfile?.vendorName ?? '',
+                username: loginData?.userName ?? '—',
+                lastLogin: loginData?.lastLogin ?? '—',
+                sessionId: loginData?.userSessionId.toString().isNotEmpty == true
+                    ? '#${loginData!.userSessionId}'
+                    : 'Active',
+                onEditContact: () => EditProfileDialog.show(
+                  context,
+                  currentEmail: email,
+                  currentMobile: mobile,
+                ),
               ),
 
               const SizedBox(height: 12),

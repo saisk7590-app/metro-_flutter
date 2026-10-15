@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
-import '../../../theme/spacing.dart';
+import '../../../theme/tokens/spacing.dart';
 
 class SecurityNotice extends StatelessWidget {
   const SecurityNotice({super.key});

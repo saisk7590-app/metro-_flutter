@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../models/meter_reading.dart';
-import '../../providers/login_provider.dart';
+import '../../models/meter/meter_reading.dart';
+import '../../providers/auth/login_provider.dart';
 import '../../services/api_service.dart';
 import 'meter_expansion_tile.dart';
 import 'meter_progress_card.dart';

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../theme/spacing.dart';
-import '../../providers/login_provider.dart';
+import '../../theme/tokens/spacing.dart';
+import '../../providers/auth/login_provider.dart';
 import '../../services/api_service.dart';
 import '../../models/auth/login_model.dart';
 import '../../navigation/maintenance_bay_navigation_screen.dart';

@@ -1,4 +1,4 @@
-import '../../models/meter_reading.dart';
+﻿import '../../models/meter/meter_reading.dart';
 
 class MeterValidation {
   const MeterValidation._();

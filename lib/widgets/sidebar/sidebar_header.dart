@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/login_provider.dart';
-import '../../providers/notification_provider.dart';
-import '../../providers/profile_provider.dart';
+import '../../providers/auth/login_provider.dart';
+import '../../providers/notifications/notification_provider.dart';
+import '../../providers/auth/profile_provider.dart';
 import '../../screens/notifications/notification_screen.dart';
 import '../../screens/profile/profile_screen.dart';
 import '../../theme/theme_notifier.dart';

@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/login_provider.dart';
-import '../providers/notification_provider.dart';
-import '../providers/profile_provider.dart';
-import '../screens/maintenance-bay/dashboard_screen.dart';
-import '../screens/maintenance-bay/ams_update_screen.dart';
-import '../screens/maintenance-bay/history_screen.dart';
+import '../providers/auth/login_provider.dart';
+import '../providers/notifications/notification_provider.dart';
+import '../providers/auth/profile_provider.dart';
+import '../screens/maintenance_bay/dashboard_screen.dart';
+import '../screens/maintenance_bay/ams_update_screen.dart';
+import '../screens/maintenance_bay/history_screen.dart';
 import 'app_sidebar.dart';
 
 class MaintenanceBayNavigationScreen extends StatefulWidget {

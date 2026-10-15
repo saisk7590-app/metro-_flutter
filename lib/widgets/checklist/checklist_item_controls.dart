@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import '../../models/checklist_model.dart';
-import '../../providers/checklist_provider.dart';
+﻿import 'package:flutter/material.dart';
+import '../../models/checklist/checklist_model.dart';
+import '../../providers/checklist/checklist_provider.dart';
 
 /// Touch-Friendly Segmented Compliance Selector (No/Defect, Partial, Full/Pass)
 class CheckItemComplianceSelector extends StatelessWidget {

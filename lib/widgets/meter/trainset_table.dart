@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../../models/trainset_meter_reading_model.dart';
+import '../../models/meter/trainset_meter_reading_model.dart';
 import 'package:provider/provider.dart';
-import '../../providers/trainset_meter_reading_provider.dart';
-import '../../providers/login_provider.dart';
+import '../../providers/meter/trainset_meter_reading_provider.dart';
+import '../../providers/auth/login_provider.dart';
 import '../../screens/auth/login_screen.dart';
 
 import 'date_search_bar.dart';
@@ -23,7 +23,7 @@ class TrainsetTable extends StatefulWidget {
 }
 
 class _TrainsetTableState extends State<TrainsetTable> {
-  DateTime? selectedDate;
+  DateTime selectedDate = DateTime.now();
 
   int itemsPerPage = 10;
   int currentPage = 1;
@@ -80,13 +80,11 @@ class _TrainsetTableState extends State<TrainsetTable> {
             ? loginData.roleIds.split(',').first.trim()
             : ApiService.currentRoleId ?? '1');
     if (token.isEmpty) return;
-    final date = selectedDate != null
-        ? DateTime(
-            selectedDate!.year,
-            selectedDate!.month,
-            selectedDate!.day,
-          ).toIso8601String().split('.').first
-        : '';
+    final date = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    ).toIso8601String().split('.').first;
     try {
       final results = await context
           .read<TrainsetMeterReadingProvider>()
@@ -132,6 +130,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
 
   Future<void> _loadReadings() async {
     final loginProvider = context.read<LoginProvider>();
+    final meterProvider = context.read<TrainsetMeterReadingProvider>();
     var loginData = loginProvider.loginData;
     if (loginData == null && await LoginProvider.hasSavedBiometricSession()) {
       if (!mounted) return;
@@ -148,7 +147,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
             : ApiService.currentRoleId ?? '1');
 
     if (token.isEmpty) {
-      context.read<TrainsetMeterReadingProvider>().setErrorMessage(
+      meterProvider.setErrorMessage(
         'Authentication required. Please log in to view meter readings.',
       );
       return;
@@ -156,15 +155,13 @@ class _TrainsetTableState extends State<TrainsetTable> {
 
     logTokenDiagnostics('after LoginProvider retrieval', token);
 
-    final date = selectedDate != null
-        ? DateTime(
-            selectedDate!.year,
-            selectedDate!.month,
-            selectedDate!.day,
-          ).toIso8601String().split('.').first
-        : '';
+    final date = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    ).toIso8601String().split('.').first;
 
-    await context.read<TrainsetMeterReadingProvider>().getTrainsetMeterReadings(
+    await meterProvider.getTrainsetMeterReadings(
       date: date,
       pageNo: currentPage,
       pageSize: itemsPerPage,
@@ -179,7 +176,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
     final picked = await showDialog<DateTime>(
       context: context,
       builder: (context) => WebsiteDatePicker(
-        initialDate: selectedDate ?? DateTime.now(),
+        initialDate: selectedDate,
         firstDate: DateTime(2020),
         lastDate: DateTime(2100),
       ),
@@ -189,7 +186,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
       searchDebounce?.cancel();
       searchController.clear();
       setState(() {
-        selectedDate = (picked.year == 1900) ? null : picked;
+        selectedDate = picked;
         searchText = '';
         searchMatches = [];
         searchLoading = false;
@@ -262,7 +259,7 @@ class _TrainsetTableState extends State<TrainsetTable> {
                     searchDebounce?.cancel();
 
                     setState(() {
-                      selectedDate = null;
+                      selectedDate = DateTime.now();
                       searchText = '';
                       searchMatches = [];
                       searchLoading = false;
@@ -324,13 +321,11 @@ class _TrainsetTableState extends State<TrainsetTable> {
                               previousStatus: row.previousDateReading,
                               currentStatus: row.todayReading,
                               onEdit: () async {
-                                final editDate = selectedDate != null
-                                    ? DateTime(
-                                        selectedDate!.year,
-                                        selectedDate!.month,
-                                        selectedDate!.day,
-                                      ).toIso8601String().split('.').first
-                                    : DateTime.now().toIso8601String().split('.').first;
+                                final editDate = DateTime(
+                                  selectedDate.year,
+                                  selectedDate.month,
+                                  selectedDate.day,
+                                ).toIso8601String().split('.').first;
 
                                 final result =
                                     await showModalBottomSheet<String>(

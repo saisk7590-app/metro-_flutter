@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/maintenance_bay_model.dart';
-import '../../providers/allocation_provider.dart';
+import '../../models/maintenance_bay/maintenance_bay_model.dart';
+import '../../providers/maintenance_bay/allocation_provider.dart';
 import '../../widgets/popups/allocation_popup.dart';
 import '../../widgets/popups/ams_update_popup.dart';
 

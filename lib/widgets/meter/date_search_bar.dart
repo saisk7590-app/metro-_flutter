@@ -39,17 +39,16 @@ class DateSearchBar extends StatelessWidget {
                       border: OutlineInputBorder(),
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
-                    child: Text(
-                      selectedDate != null
-                          ? "${selectedDate!.day.toString().padLeft(2, '0')}-"
-                              "${selectedDate!.month.toString().padLeft(2, '0')}-"
-                              "${selectedDate!.year}"
-                          : "All Dates (Tap to select date)",
-                      style: TextStyle(
-                        color: selectedDate != null
-                            ? null
-                            : Theme.of(context).colorScheme.secondary,
-                      ),
+                    child: Builder(
+                      builder: (context) {
+                        final d = selectedDate ?? DateTime.now();
+                        return Text(
+                          "${d.day.toString().padLeft(2, '0')}-"
+                          "${d.month.toString().padLeft(2, '0')}-"
+                          "${d.year}",
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -66,7 +65,7 @@ class DateSearchBar extends StatelessWidget {
               const SizedBox(width: 8),
 
               IconButton.outlined(
-                tooltip: "Reset",
+                tooltip: "Refresh Today's Data",
                 onPressed: onRefresh,
                 icon: const Icon(Icons.refresh),
               ),

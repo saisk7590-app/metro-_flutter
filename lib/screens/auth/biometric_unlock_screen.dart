@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../navigation/maintenance_bay_navigation_screen.dart';
-import '../../providers/login_provider.dart';
-import '../../services/biometric_auth_service.dart';
+import '../../providers/auth/login_provider.dart';
+import '../../services/auth/biometric_auth_service.dart';
 import '../../widgets/auth/biometric_widgets.dart';
 import 'login_screen.dart';
 

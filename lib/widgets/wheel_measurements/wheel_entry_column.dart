@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import '../../models/wheel_measurement_model.dart';
+﻿import 'package:flutter/material.dart';
+import '../../models/wheel/wheel_measurement_model.dart';
 
 /// Single parameter text input field with tolerance validation highlight
 class WheelParamField extends StatelessWidget {

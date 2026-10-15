@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/notification_model.dart';
-import '../../providers/login_provider.dart';
-import '../../providers/notification_provider.dart';
+import '../../models/notifications/notification_model.dart';
+import '../../providers/auth/login_provider.dart';
+import '../../providers/notifications/notification_provider.dart';
 import '../../widgets/notifications/notification_filter_bar.dart';
 import '../../widgets/notifications/notification_item_card.dart';
 

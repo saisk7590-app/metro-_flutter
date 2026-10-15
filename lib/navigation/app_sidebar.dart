@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/sidebar_modules.dart';
-import '../providers/login_provider.dart';
+import '../providers/auth/login_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../widgets/sidebar/sidebar_header.dart';
 import '../widgets/sidebar/sidebar_logout.dart';

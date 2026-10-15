@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/checklist_provider.dart';
-import '../../../models/checklist_model.dart';
+import '../../../providers/checklist/checklist_provider.dart';
+import '../../../models/checklist/checklist_model.dart';
 
 /// Modal dialog to edit Checklist Name only matching `EditChecklistNamePopupComponent`
 class EditChecklistNameDialog extends StatefulWidget {

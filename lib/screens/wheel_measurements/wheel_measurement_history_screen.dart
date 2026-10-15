@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/wheel_measurement_model.dart';
-import '../../providers/login_provider.dart';
-import '../../providers/train_provider.dart';
+import '../../models/wheel/wheel_measurement_model.dart';
+import '../../providers/auth/login_provider.dart';
+import '../../providers/maintenance_bay/train_provider.dart';
 import '../../services/api_service.dart';
 import '../../widgets/common/custom_header.dart';
 import '../../widgets/wheel_measurements/wheel_history_widgets.dart';

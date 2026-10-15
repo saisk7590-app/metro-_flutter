@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import 'app_sidebar.dart';
 
-import '../screens/CheckList/work_orders_screen.dart';
-import '../screens/CheckList/checklist_screen.dart';
-import '../screens/CheckList/work_order_history_screen.dart';
+import '../screens/checklist/work_orders_screen.dart';
+import '../screens/checklist/checklist_screen.dart';
+import '../screens/checklist/work_order_history_screen.dart';
 
 class ChecklistNavigationScreen extends StatefulWidget {
   const ChecklistNavigationScreen({super.key});

@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 //import 'package:provider/provider.dart';
 
-// import '../providers/maintenance_purpose_provider.dart';
-// import '../providers/status_provider.dart';
-// import '../providers/train_provider.dart';
+// import '../providers/maintenance_bay/maintenance_purpose_provider.dart';
+// import '../providers/maintenance_bay/status_provider.dart';
+// import '../providers/maintenance_bay/train_provider.dart';
 import 'package:provider/provider.dart';
-import '../../providers/allocation_provider.dart';
-import '../../models/allocation.dart';
+import '../../providers/maintenance_bay/allocation_provider.dart';
+import '../../models/maintenance_bay/allocation.dart';
 import '../../widgets/common/custom_dropdown.dart';
 import '../../widgets/common/custom_input.dart';
 import '../../widgets/common/custom_button.dart';
