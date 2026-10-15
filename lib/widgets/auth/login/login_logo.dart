@@ -17,6 +17,15 @@ class LoginLogo extends StatelessWidget {
             height: 72,
             width: 72,
             fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => Container(
+              height: 65,
+              width: 65,
+              decoration: BoxDecoration(
+                color: theme.primaryColor,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
+              child: const Icon(Icons.train, color: Colors.white, size: 34),
+            ),
           ),
         ),
 

@@ -101,16 +101,25 @@ class SidebarHeader extends StatelessWidget {
                   height: 30,
                   width: 30,
                   fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.train_rounded,
+                    color: Colors.blueAccent,
+                    size: 24,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'HYDERABAD METRO RAIL',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
+              const Expanded(
+                child: Text(
+                  'HYDERABAD METRO RAIL',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

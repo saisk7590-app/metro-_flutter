@@ -64,9 +64,9 @@
 | 16 | `config_checklist_card.dart` | `widgets/checklist` | **268** | Modular Widget (< 300) |
 | 17 | `ams_update_history_widgets.dart` | `widgets/maintenance_bay` | **262** | Modular Widget (< 300) |
 | 18 | `history_widgets.dart` | `widgets/maintenance_bay` | **261** | Modular Widget (< 300) |
-| 19 | `wheel_history_widgets.dart` | `widgets/wheel_measurements` | **258** | Modular Widget (< 300) |
-| 20 | `add_checklist_group_item_dialog.dart` | `widgets/checklist/dialogs` | **251** | Modular Widget (< 300) |
-| 21 | `sidebar_header.dart` | `widgets/sidebar` | **249** | Modular Widget (< 300) |
+| 19 | `sidebar_header.dart` | `widgets/sidebar` | **258** | Modular Widget (< 300) |
+| 20 | `wheel_history_widgets.dart` | `widgets/wheel_measurements` | **258** | Modular Widget (< 300) |
+| 21 | `add_checklist_group_item_dialog.dart` | `widgets/checklist/dialogs` | **251** | Modular Widget (< 300) |
 | 22 | `ams_update_details_rows.dart` | `widgets/maintenance_bay` | **248** | Modular Widget (< 300) |
 | 23 | `profile_header_card.dart` | `widgets/profile` | **248** | Modular Widget (< 300) |
 | 24 | `config_checklist_filters.dart` | `widgets/checklist` | **248** | Modular Widget (< 300) |
@@ -115,9 +115,9 @@
 | 67 | `depot_map_header.dart` | `widgets/map` | **73** | Modular Widget (< 300) |
 | 68 | `ams_update_popup_footer.dart` | `widgets/popups` | **67** | Modular Widget (< 300) |
 | 69 | `meter_expansion_tile.dart` | `widgets/meter` | **58** | Modular Widget (< 300) |
-| 70 | `sidebar_logout.dart` | `widgets/sidebar` | **45** | Modular Widget (< 300) |
-| 71 | `security_notice.dart` | `widgets/auth/login` | **44** | Modular Widget (< 300) |
-| 72 | `login_logo.dart` | `widgets/auth/login` | **38** | Modular Widget (< 300) |
+| 70 | `login_logo.dart` | `widgets/auth/login` | **47** | Modular Widget (< 300) |
+| 71 | `sidebar_logout.dart` | `widgets/sidebar` | **45** | Modular Widget (< 300) |
+| 72 | `security_notice.dart` | `widgets/auth/login` | **44** | Modular Widget (< 300) |
 | 73 | `delete_checklist_dialog.dart` | `widgets/checklist` | **36** | Modular Widget (< 300) |
 | 74 | `map_touch_hint.dart` | `widgets/map` | **33** | Modular Widget (< 300) |
 | 75 | `login_header.dart` | `widgets/auth/login` | **33** | Modular Widget (< 300) |
