@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../theme/tokens/spacing.dart';
 
@@ -12,14 +12,11 @@ class LoginLogo extends StatelessWidget {
     return Column(
       children: [
         Center(
-          child: Container(
-            height: 65,
-            width: 65,
-            decoration: BoxDecoration(
-              color: theme.primaryColor,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-            ),
-            child: const Icon(Icons.train, color: Colors.white, size: 34),
+          child: Image.asset(
+            'assets/icons/metro-logo.png',
+            height: 72,
+            width: 72,
+            fit: BoxFit.contain,
           ),
         ),
 
@@ -31,6 +28,7 @@ class LoginLogo extends StatelessWidget {
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.primaryColor,
               fontWeight: FontWeight.bold,
+              letterSpacing: 1.1,
             ),
           ),
         ),

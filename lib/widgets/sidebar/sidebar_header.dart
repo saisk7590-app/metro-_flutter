@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth/login_provider.dart';
@@ -85,6 +85,39 @@ class SidebarHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          //--------------------------------
+          // Metro Rail Brand Header
+          //--------------------------------
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Image.asset(
+                  'assets/icons/metro-logo.png',
+                  height: 30,
+                  width: 30,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'HYDERABAD METRO RAIL',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
           //--------------------------------
           // Avatar + Icons
           //--------------------------------
